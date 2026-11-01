@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Painel de Atendimento - Recursos Humanos')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+
+        <!-- 4 Indicadores em Faixa de Gradiente (Fiel ao Protótipo da Visão do Profissional de RH) -->
+        <div class="indicators-grid">
+            <div class="indicator-col">
+                <div class="indicator-title">Tickets em Aberto</div>
+                <div class="indicator-number" th:text="${contagemAbertos}">24</div>
+                <a th:href="@{/rh/tickets/abertos}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Ver Fila</a>
+            </div>
+
+            <div class="indicator-col">
+                <div class="indicator-title">Tickets em Andamento</div>
+                <div class="indicator-number" th:text="${contagemAndamento}">51</div>
+                <a th:href="@{/rh/meu-trabalho}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Em Tratamento</a>
+            </div>
+
+            <div class="indicator-col">
+                <div class="indicator-title">Tickets Pendentes</div>
+                <div class="indicator-number" th:text="${contagemPendentes}">15</div>
+                <a th:href="@{/aprovacoes}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Aprovações</a>
+            </div>
+
+            <div class="indicator-col">
+                <div class="indicator-title">Tickets Encerrados</div>
+                <div class="indicator-number" th:text="${contagemEncerrados}">607</div>
+                <span style="color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 4px; display: inline-block;">Concluídos / Reprovados</span>
+            </div>
+        </div>
+
+        <!-- Faixa Gerenciar (Fundo Verde-Claro, 3 Atalhos - Fiel ao Protótipo) -->
+        <div class="gerenciar-strip">
+            <div class="gerenciar-strip-title">Gerenciar</div>
+            <div class="gerenciar-items">
+                <!-- Atalho Usuários -->
+                <a th:href="@{/rh/gerenciar/usuarios}" class="gerenciar-btn-item">
+                    <svg class="item-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Usuários</span>
+                    <i class="bi bi-pencil-square" style="font-size: 14px; color: #718096; margin-left: auto;"></i>
+                </a>
+
+                <!-- Atalho Formulários -->
+                <a th:href="@{/rh/gerenciar/formularios}" class="gerenciar-btn-item">
+                    <svg class="item-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                        <path d="M9 14h6"/>
+                        <path d="M9 18h6"/>
+                        <path d="M9 10h6"/>
+                    </svg>
+                    <span>Formulários</span>
+                    <i class="bi bi-pencil-square" style="font-size: 14px; color: #718096; margin-left: auto;"></i>
+                </a>
+
+                <!-- Atalho Base de Conhecimento -->
+                <a th:href="@{/rh/gerenciar/base-conhecimento}" class="gerenciar-btn-item">
+                    <svg class="item-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    <span>Base de Conhecimento</span>
+                    <i class="bi bi-pencil-square" style="font-size: 14px; color: #718096; margin-left: auto;"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Seção "Meu Trabalho" (+ Link VER TUDO) - Fiel ao Protótipo -->
+        <div>
+            <div class="section-top-header">
+                <h3 class="section-title">Meu Trabalho</h3>
+                <a th:href="@{/rh/meu-trabalho}" class="link-ver-tudo">VER TUDO</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(meuTrabalho)}" style="background: white; border-radius: 20px; padding: 45px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+                <i class="bi bi-check2-circle" style="font-size: 38px; color: #8BC34A; display: block; margin-bottom: 8px;"></i>
+                <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhum chamado atribuído a você no momento</h4>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">Acesse a fila de tickets em aberto para puxar novos atendimentos.</p>
+                <a th:href="@{/rh/tickets/abertos}" class="btn-primary" style="font-size: 13px; padding: 8px 18px;">
+                    <i class="bi bi-inbox-fill"></i> Visualizar Fila de Tickets em Aberto
+                </a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(meuTrabalho)}" class="meu-trabalho-grid">
+                <a th:each="t : ${meuTrabalho}" th:href="@{/rh/tickets/{id}(id=${t.id})}" class="meu-trabalho-card">
+                    <div>
+                        <div class="card-req-code" th:text="${t.codigoFormatado}">REQ0081637</div>
+                        <h4 class="card-ticket-title" th:text="${t.tipoSolicitacao.nome}">Correção de Folha de Pagamento</h4>
+                        <div class="card-ticket-meta">
+                            <div>Solicitado por: <span th:text="${t.colaborador.nome}" style="font-weight: 500;">Carol Sturka</span></div>
+                            <div>Aberto em: <span th:text="${t.dataFormatada}">11/06/2026</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="status-tag" th:classappend="${t.status.classeCss}" th:text="${t.status.descricao}">ABERTO</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

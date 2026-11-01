@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Meu Trabalho - Atendimentos Atribuídos')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+                </a>
+                <h2 class="section-title" style="font-size: 24px;">Meu Trabalho</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Lista completa de chamados sob sua responsabilidade de atendimento.</p>
+            </div>
+            <a th:href="@{/rh/tickets/abertos}" class="btn-primary">
+                <i class="bi bi-inbox-fill"></i> Puxar Novos Tickets
+            </a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(tickets)}" style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+            <i class="bi bi-check2-circle" style="font-size: 40px; color: #8BC34A; display: block; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Você não possui tickets atribuídos</h4>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">Consulte a fila de tickets em aberto para assumir novos atendimentos.</p>
+            <a th:href="@{/rh/tickets/abertos}" class="btn-primary" style="font-size: 13px; padding: 8px 18px;">
+                Ver Fila de Tickets em Aberto
+            </a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(tickets)}" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Solicitação</th>
+                        <th>Solicitado por</th>
+                        <th>Data de Abertura</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${tickets}">
+                        <td>
+                            <strong style="color: var(--accent-green); font-size: 14px;" th:text="${t.codigoFormatado}">REQ0081637</strong>
+                        </td>
+                        <td>
+                            <strong th:text="${t.tipoSolicitacao.nome}" style="font-size: 14px; display: block;">Correção de Folha de Pagamento</strong>
+                            <small th:text="${t.tipoSolicitacao.categoria}" style="color: var(--text-muted); font-size: 11px;"></small>
+                        </td>
+                        <td>
+                            <span th:text="${t.colaborador.nome}" style="font-weight: 500; font-size: 13px;">Carol Sturka</span>
+                        </td>
+                        <td>
+                            <span th:text="${t.dataFormatada}" style="font-size: 13px;">11/06/2026</span>
+                        </td>
+                        <td>
+                            <span class="status-tag" th:classappend="${t.status.classeCss}" th:text="${t.status.descricao}">Em andamento</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <a th:href="@{/rh/tickets/{id}(id=${t.id})}" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
+                                Atender <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
