@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${isEdicao} ? 'Editar Artigo' : 'Novo Artigo')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <a th:href="@{/rh/gerenciar/base-conhecimento}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                <i class="bi bi-arrow-left"></i> Voltar à Lista de Artigos
+            </a>
+
+            <div style="background: white; border-radius: 24px; padding: 35px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <h2 class="section-title" style="font-size: 22px; margin-bottom: 6px;" th:text="${isEdicao} ? 'Editar Artigo: ' + ${artigoTitulo} : 'Criar Novo Artigo para a Base de Conhecimento'">
+                    Criar Novo Artigo
+                </h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">
+                    Compartilhe orientações claras para que os colaboradores tirem dúvidas sem necessidade de abrir chamados repetitivos.
+                </p>
+
+                <form th:action="${isEdicao} ? @{/rh/gerenciar/base-conhecimento/{id}/editar(id=${artigoForm.id})} : @{/rh/gerenciar/base-conhecimento/novo}"
+                      th:object="${artigoForm}" method="post">
+
+                    <input type="hidden" th:if="${isEdicao}" th:field="*{id}">
+
+                    <div class="form-group">
+                        <label for="titulo" class="form-label">Título do Artigo / FAQ *</label>
+                        <input type="text" id="titulo" th:field="*{titulo}" class="form-control" placeholder="Ex.: Orientações sobre Agendamento de Férias" required>
+                        <div th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}" style="color: #D32F2F; font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoria" class="form-label">Categoria do Artigo *</label>
+                        <input list="listaCategorias" id="categoria" th:field="*{categoria}" class="form-control" placeholder="Ex.: Férias, Folha de Pagamento, Benefícios..." required>
+                        <datalist id="listaCategorias">
+                            <option th:each="cat : ${categorias}" th:value="${cat}"></option>
+                        </datalist>
+                        <div th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}" style="color: #D32F2F; font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="conteudo" class="form-label">Conteúdo Completo do Artigo / Política *</label>
+                        <textarea id="conteudo" th:field="*{conteudo}" class="form-control" rows="8" placeholder="Escreva aqui todas as instruções, regras, prazos e orientações pertinentes..." required></textarea>
+                        <div th:if="${#fields.hasErrors('conteudo')}" th:errors="*{conteudo}" style="color: #D32F2F; font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+
+                    <div style="background: #F8FAFC; padding: 14px 18px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #EDF2F7;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
+                            <input type="checkbox" th:field="*{publicado}"> Artigo Publicado (visível para busca e consulta dos colaboradores)
+                        </label>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <a th:href="@{/rh/gerenciar/base-conhecimento}" class="btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn-primary">
+                            <i class="bi bi-check2-circle"></i>
+                            <span th:text="${isEdicao} ? 'Salvar Alterações' : 'Publicar Artigo'">Salvar</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

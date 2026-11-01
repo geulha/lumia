@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Gerenciar Base de Conhecimento')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+                </a>
+                <h2 class="section-title" style="font-size: 24px;">Gerenciar Base de Conhecimento</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Publique e atualize orientações, políticas internas e FAQs corporativos.</p>
+            </div>
+            <a th:href="@{/rh/gerenciar/base-conhecimento/novo}" class="btn-primary">
+                <i class="bi bi-plus-circle-fill"></i> Criar Novo Artigo
+            </a>
+        </div>
+
+        <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Título do Artigo</th>
+                        <th>Categoria</th>
+                        <th>Autor</th>
+                        <th>Data</th>
+                        <th>Situação</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${artigos}">
+                        <td>
+                            <strong style="color: var(--primary-purple); font-size: 13px;" th:text="${a.codigoFormatado}">ART0183</strong>
+                        </td>
+                        <td>
+                            <strong th:text="${a.titulo}" style="font-size: 14px; display: block;">Orientações sobre Agendamento de Férias</strong>
+                            <small th:text="${a.tempoRelativo}" style="color: var(--text-muted); font-size: 11px;">três horas atrás</small>
+                        </td>
+                        <td>
+                            <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${a.categoria}">Férias</span>
+                        </td>
+                        <td>
+                            <span th:text="${a.autor.nome}" style="font-size: 13px;">Zosia Hivemind</span>
+                        </td>
+                        <td>
+                            <span th:text="${a.dataFormatada}" style="font-size: 13px;">11/06/2026</span>
+                        </td>
+                        <td>
+                            <span th:if="${a.publicado}" class="status-tag" style="background-color: #E8F5E9; color: #2E7D32;">Publicado</span>
+                            <span th:unless="${a.publicado}" class="status-tag badge-reprovado">Rascunho</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px;">
+                                <a th:href="@{/artigos/{id}(id=${a.id})}" target="_blank" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Visualizar Artigo">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a th:href="@{/rh/gerenciar/base-conhecimento/{id}/editar(id=${a.id})}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Editar Artigo">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form th:action="@{/rh/gerenciar/base-conhecimento/{id}/toggle-publicado(id=${a.id})}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" th:title="${a.publicado ? 'Despublicar' : 'Publicar'}">
+                                        <i class="bi" th:classappend="${a.publicado ? 'bi-cloud-slash text-warning' : 'bi-cloud-upload text-success'}"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/rh/gerenciar/base-conhecimento/{id}/excluir(id=${a.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja realmente excluir este artigo?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Excluir Artigo">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

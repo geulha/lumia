@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Base de Conhecimento - Perguntas Frequentes')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px;">
+            <a th:href="@{/}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Meu Painel
+            </a>
+            <h2 class="section-title" style="font-size: 24px;">Base de Conhecimento & Políticas Internas</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">
+                Consulte respostas para as dúvidas mais comuns sobre benefícios, férias, ponto e processos corporativos.
+            </p>
+        </div>
+
+        <!-- Barra de Busca -->
+        <div style="background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #EDF2F7;">
+            <form th:action="@{/artigos}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar por palavra-chave, dúvidas, férias, ponto..." th:value="${filtroTermo}" style="flex: 1;">
+                <button type="submit" class="btn-primary" style="padding: 10px 20px;">
+                    <i class="bi bi-search"></i> Pesquisar
+                </button>
+                <a th:if="${filtroTermo != null and !filtroTermo.isBlank()}" th:href="@{/artigos}" class="btn-secondary" style="padding: 10px 16px;">
+                    Limpar
+                </a>
+            </form>
+        </div>
+
+        <!-- Filtros por Categoria -->
+        <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+            <a th:href="@{/artigos}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${filtroCategoria == null and filtroTermo == null ? 'btn-primary' : ''}">
+                Todos os Artigos
+            </a>
+            <a th:each="cat : ${categorias}" th:href="@{/artigos(categoria=${cat})}"
+               class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;"
+               th:classappend="${filtroCategoria == cat ? 'btn-primary' : ''}"
+               th:text="${cat}">Categoria</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(artigos)}" style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+            <i class="bi bi-journal-x" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhum artigo encontrado</h4>
+            <p style="color: var(--text-muted); font-size: 13px;">Tente buscar com outras palavras ou navegue pelas categorias acima.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(artigos)}" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px;">
+            <div th:each="art : ${artigos}" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.04); border: 1px solid #EDF2F7; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${art.categoria}">Categoria</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--primary-purple);" th:text="${art.codigoFormatado}">ART0183</span>
+                    </div>
+
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1A202C; margin-bottom: 8px;" th:text="${art.titulo}">Título do Artigo</h3>
+
+                    <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;" th:text="${art.conteudo}">
+                        Conteúdo e orientações do artigo...
+                    </p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #EDF2F7; padding-top: 14px;">
+                    <div style="font-size: 11px; color: var(--text-muted);">
+                        <span th:text="${art.tempoRelativo}">três horas atrás</span> • 
+                        <span th:text="'por ' + ${art.autor.nome}">Zosia Hivemind</span>
+                    </div>
+                    <a th:href="@{/artigos/{id}(id=${art.id})}" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">
+                        Ler Artigo <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
