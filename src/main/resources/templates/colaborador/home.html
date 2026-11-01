@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Portal do Colaborador')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+
+        <!-- Banner com Gradiente (Fiel ao Protótipo da Visão do Colaborador) -->
+        <div class="gradient-banner-card">
+            <h1 class="banner-title" th:text="'Olá ' + ${usuarioLogado.primeiroNome} + ','">Olá Carol,</h1>
+            <p class="banner-subtitle">Bem-vinda ao Portal do Colaborador</p>
+
+            <form th:action="@{/colaborador/formularios}" method="get" class="banner-search-container">
+                <input type="text" name="termo" placeholder="Buscar formulários, solicitações ou assuntos...">
+                <i class="bi bi-search search-icon" onclick="this.closest('form').submit()"></i>
+            </form>
+        </div>
+
+        <!-- 4 Categorias com Ícones Estilizados (Fiel ao Protótipo) -->
+        <div class="categories-wrapper">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                <a th:href="@{/colaborador/formularios}" class="link-ver-tudo">VER TUDO</a>
+            </div>
+
+            <div class="categories-grid">
+                <!-- Benefícios -->
+                <a th:href="@{/colaborador/formularios(categoria='Benefícios')}" class="category-card">
+                    <div class="category-icon-box">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="#7CB342" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M32 46s-16-10-16-22a10 10 0 0 1 16-8 10 10 0 0 1 16 8c0 12-16 22-16 22z"/>
+                            <path d="M12 28l4-4 4 4"/>
+                            <circle cx="48" cy="24" r="5"/>
+                            <path d="M48 21v6M46 24h4"/>
+                            <path d="M22 52h20"/>
+                        </svg>
+                    </div>
+                    <span class="category-label">Benefícios</span>
+                </a>
+
+                <!-- Folha de Pagamento -->
+                <a th:href="@{/colaborador/formularios(categoria='Folha de Pagamento')}" class="category-card">
+                    <div class="category-icon-box">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="#7CB342" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="32" cy="18" r="6"/>
+                            <circle cx="18" cy="22" r="5"/>
+                            <circle cx="46" cy="22" r="5"/>
+                            <rect x="14" y="34" width="36" height="20" rx="3"/>
+                            <circle cx="32" cy="44" r="4"/>
+                            <line x1="20" y1="44" x2="24" y2="44"/>
+                            <line x1="40" y1="44" x2="44" y2="44"/>
+                        </svg>
+                    </div>
+                    <span class="category-label">Folha de Pagamento</span>
+                </a>
+
+                <!-- Documentos -->
+                <a th:href="@{/colaborador/formularios(categoria='Documentos')}" class="category-card">
+                    <div class="category-icon-box">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="#7CB342" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="22" y="16" width="28" height="38" rx="3"/>
+                            <path d="M14 24h8v26H14z"/>
+                            <line x1="28" y1="26" x2="42" y2="26"/>
+                            <line x1="28" y1="34" x2="42" y2="34"/>
+                            <line x1="28" y1="42" x2="36" y2="42"/>
+                        </svg>
+                    </div>
+                    <span class="category-label">Documentos</span>
+                </a>
+
+                <!-- Férias -->
+                <a th:href="@{/colaborador/formularios(categoria='Férias')}" class="category-card">
+                    <div class="category-icon-box">
+                        <svg viewBox="0 0 64 64" fill="none" stroke="#7CB342" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="14" y="18" width="36" height="34" rx="4"/>
+                            <line x1="14" y1="28" x2="50" y2="28"/>
+                            <line x1="24" y1="12" x2="24" y2="18"/>
+                            <line x1="40" y1="12" x2="40" y2="18"/>
+                            <path d="M22 42l10-8 10 8"/>
+                            <circle cx="42" cy="36" r="3"/>
+                        </svg>
+                    </div>
+                    <span class="category-label">Férias</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Layout em 2 Colunas: Minhas Solicitações + Base de Conhecimento (Fiel ao Protótipo) -->
+        <div class="colaborador-two-columns">
+
+            <!-- Coluna Esquerda: Minhas Solicitações -->
+            <div class="colaborador-column-card">
+                <div class="section-top-header">
+                    <h3 class="section-title">Minhas Solicitações</h3>
+                    <a th:href="@{/colaborador/solicitacoes}" class="link-ver-tudo">VER TUDO</a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(minhasSolicitacoes)}" style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="bi bi-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; color: #CBD5E0;"></i>
+                    <p style="font-size: 14px;">Você ainda não abriu nenhuma solicitação.</p>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(minhasSolicitacoes)}">
+                    <a th:each="t : ${minhasSolicitacoes}" th:href="@{/colaborador/solicitacoes/{id}(id=${t.id})}" class="ticket-list-item">
+                        <div class="ticket-item-left">
+                            <div class="ticket-item-thumbnail">
+                                <i class="bi bi-file-earmark-text text-muted" style="font-size: 22px;"></i>
+                            </div>
+                            <div class="ticket-item-info">
+                                <h4 th:text="${t.tipoSolicitacao.nome}">Agendamento de Férias</h4>
+                                <div class="ticket-item-meta">
+                                    <span th:text="${t.codigoFormatado}">REQ0083619</span> - 
+                                    <span th:text="${t.tempoRelativo}">56 minutos atrás</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="status-tag" th:classappend="${t.status.classeCss}" th:text="${t.status.descricao}">PENDENTE</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Base de Conhecimento -->
+            <div class="colaborador-column-card">
+                <div class="section-top-header">
+                    <h3 class="section-title">Base de Conhecimento</h3>
+                    <a th:href="@{/artigos}" class="link-ver-tudo">VER TUDO</a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(artigosRecentes)}" style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="bi bi-journal-text" style="font-size: 32px; display: block; margin-bottom: 8px; color: #CBD5E0;"></i>
+                    <p style="font-size: 14px;">Nenhum artigo publicado no momento.</p>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(artigosRecentes)}">
+                    <a th:each="art : ${artigosRecentes}" th:href="@{/artigos/{id}(id=${art.id})}" class="article-list-item">
+                        <div class="article-item-icon">
+                            <!-- Ícones ilustrativos semelhantes aos do protótipo -->
+                            <i th:if="${art.categoria == 'Férias'}" class="bi bi-lightbulb-fill" style="color: #E53935; font-size: 22px;"></i>
+                            <i th:if="${art.categoria == 'Folha de Pagamento'}" class="bi bi-bell-fill" style="color: #FBC02D; font-size: 22px;"></i>
+                            <i th:if="${art.categoria == 'Benefícios'}" class="bi bi-pin-angle-fill" style="color: #E53935; font-size: 22px;"></i>
+                            <i th:if="${art.categoria != 'Férias' and art.categoria != 'Folha de Pagamento' and art.categoria != 'Benefícios'}" class="bi bi-file-text-fill" style="color: var(--primary-purple); font-size: 22px;"></i>
+                        </div>
+                        <div class="article-item-info">
+                            <h4 th:text="${art.titulo}">Orientações sobre Agendamento de Férias</h4>
+                            <div class="article-item-meta">
+                                <span th:text="${art.codigoFormatado}">ART0183</span> - 
+                                <span th:text="${art.tempoRelativo}">três horas atrás</span>
+                                <span th:text="'por ' + ${art.autor.nome}">por Zosia Hivemind</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

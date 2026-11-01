@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Formulários de Solicitação')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px;">
+            <a th:href="@{/colaborador}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Portal Principal
+            </a>
+            <h2 class="section-title" style="font-size: 24px;">Formulários de Solicitação ao RH</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">
+                Escolha o serviço desejado para abrir seu chamado de atendimento oficial.
+            </p>
+        </div>
+
+        <!-- Filtros Rápidos por Categoria -->
+        <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+            <a th:href="@{/colaborador/formularios}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${filtroCategoria == null and filtroTermo == null ? 'btn-primary' : ''}">
+                Todos os Formulários
+            </a>
+            <a th:each="cat : ${categorias}" th:href="@{/colaborador/formularios(categoria=${cat})}"
+               class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;"
+               th:classappend="${filtroCategoria == cat ? 'btn-primary' : ''}"
+               th:text="${cat}">Categoria</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(formularios)}" style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+            <i class="bi bi-search" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhum formulário encontrado</h4>
+            <p style="color: var(--text-muted); font-size: 13px;">Tente pesquisar por outro termo ou selecione outra categoria.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(formularios)}" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+            <div th:each="f : ${formularios}" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.04); border: 1px solid #EDF2F7; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${f.categoria}">Categoria</span>
+                        <span th:if="${f.requerAprovacao}" class="status-tag badge-pendente" style="font-size: 11px;">
+                            <i class="bi bi-shield-check"></i> Requer Aprovação
+                        </span>
+                    </div>
+
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1A202C; margin-bottom: 8px;" th:text="${f.nome}">Nome do Formulário</h3>
+                    <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 20px;" th:text="${f.descricao != null ? f.descricao : 'Clique abaixo para preencher as informações necessárias e registrar sua solicitação junto ao RH.'}">
+                        Descrição da solicitação...
+                    </p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #EDF2F7; padding-top: 16px;">
+                    <span style="font-size: 12px; color: var(--text-muted);">
+                        <i class="bi bi-list-check"></i> <span th:text="${#lists.size(f.campos)} + ' campo(s)'">4 campos</span>
+                    </span>
+                    <a th:href="@{/colaborador/solicitacoes/nova/{id}(id=${f.id})}" class="btn-primary" style="padding: 8px 18px; font-size: 13px;">
+                        Abrir Solicitação <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nova Solicitação - ' + ${tipo.nome})}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="max-width: 780px; margin: 0 auto;">
+            <a th:href="@{/colaborador/formularios}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                <i class="bi bi-arrow-left"></i> Voltar para Lista de Formulários
+            </a>
+
+            <div style="background: white; border-radius: 24px; padding: 35px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div>
+                        <span class="status-tag" style="background-color: #F1F5F9; color: #475569; margin-bottom: 8px; display: inline-block;" th:text="${tipo.categoria}">Categoria</span>
+                        <h2 class="section-title" style="font-size: 24px;" th:text="${tipo.nome}">Nome da Solicitação</h2>
+                    </div>
+                    <span th:if="${tipo.requerAprovacao}" class="status-tag badge-pendente">
+                        <i class="bi bi-shield-check"></i> Requer Aprovação
+                    </span>
+                </div>
+
+                <div th:if="${tipo.descricao != null and !tipo.descricao.isBlank()}" style="background-color: #F8FAFC; border-left: 4px solid var(--primary-purple); padding: 14px 18px; border-radius: 0 12px 12px 0; margin-bottom: 25px; font-size: 13px; color: #4A5568; line-height: 1.5;">
+                    <strong style="color: var(--primary-dark); display: block; margin-bottom: 2px;">Instruções:</strong>
+                    <span th:text="${tipo.descricao}">Instruções de preenchimento...</span>
+                </div>
+
+                <!-- Aviso do Fluxo de Aprovação (RF06) -->
+                <div th:if="${tipo.requerAprovacao}" class="alert alert-warning" style="margin-bottom: 25px;">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>
+                        <strong>Aviso de Fluxo Hierárquico:</strong> Esta solicitação passará pela avaliação da sua liderança imediata 
+                        (<span th:if="${colaborador.gestor != null}"><strong th:text="${colaborador.gestor.nome}">Helen Sturka</strong></span>
+                        <span th:unless="${colaborador.gestor != null}"><em>nenhum gestor cadastrado</em></span>) 
+                        antes de ser liberada para tratamento pelo RH.
+                    </div>
+                </div>
+
+                <form th:action="@{/colaborador/solicitacoes/nova/{id}(id=${tipo.id})}" method="post" enctype="multipart/form-data">
+
+                    <!-- Renderização Dinâmica dos Campos (RF04) -->
+                    <div th:each="campo : ${tipo.campos}" class="form-group" style="margin-bottom: 22px;">
+                        <label th:for="'campo_' + ${campo.id}" class="form-label">
+                            <span th:text="${campo.rotulo}">Rótulo do Campo</span>
+                            <span th:if="${campo.obrigatorio}" style="color: #D32F2F;">*</span>
+                        </label>
+
+                        <!-- TEXTO -->
+                        <input th:if="${campo.tipoCampo.name() == 'TEXTO'}"
+                               type="text"
+                               th:id="'campo_' + ${campo.id}"
+                               th:name="'campo_' + ${campo.id}"
+                               class="form-control"
+                               th:value="${valoresInformados != null ? valoresInformados.get('campo_' + campo.id) : ''}"
+                               th:required="${campo.obrigatorio}">
+
+                        <!-- NÚMERO -->
+                        <input th:if="${campo.tipoCampo.name() == 'NUMERO'}"
+                               type="number"
+                               th:id="'campo_' + ${campo.id}"
+                               th:name="'campo_' + ${campo.id}"
+                               class="form-control"
+                               th:value="${valoresInformados != null ? valoresInformados.get('campo_' + campo.id) : ''}"
+                               th:required="${campo.obrigatorio}">
+
+                        <!-- DATA -->
+                        <input th:if="${campo.tipoCampo.name() == 'DATA'}"
+                               type="date"
+                               th:id="'campo_' + ${campo.id}"
+                               th:name="'campo_' + ${campo.id}"
+                               class="form-control"
+                               th:value="${valoresInformados != null ? valoresInformados.get('campo_' + campo.id) : ''}"
+                               th:required="${campo.obrigatorio}">
+
+                        <!-- TEXTO LONGO -->
+                        <textarea th:if="${campo.tipoCampo.name() == 'TEXTO_LONGO'}"
+                                  th:id="'campo_' + ${campo.id}"
+                                  th:name="'campo_' + ${campo.id}"
+                                  class="form-control"
+                                  rows="3"
+                                  th:text="${valoresInformados != null ? valoresInformados.get('campo_' + campo.id) : ''}"
+                                  th:required="${campo.obrigatorio}"></textarea>
+
+                        <!-- SELEÇÃO -->
+                        <select th:if="${campo.tipoCampo.name() == 'SELECAO'}"
+                                th:id="'campo_' + ${campo.id}"
+                                th:name="'campo_' + ${campo.id}"
+                                class="form-control"
+                                th:required="${campo.obrigatorio}">
+                            <option value="">-- Selecione uma opção --</option>
+                            <option th:each="opt : ${campo.listaOpcoes}"
+                                    th:value="${opt}"
+                                    th:text="${opt}"
+                                    th:selected="${valoresInformados != null and valoresInformados.get('campo_' + campo.id) == opt}"></option>
+                        </select>
+
+                        <!-- ANEXO -->
+                        <div th:if="${campo.tipoCampo.name() == 'ANEXO'}">
+                            <input type="file"
+                                   th:id="'campo_' + ${campo.id}"
+                                   th:name="'campo_' + ${campo.id}"
+                                   class="form-control"
+                                   accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+                                   th:required="${campo.obrigatorio}">
+                            <small style="color: var(--text-muted); font-size: 11px; display: block; margin-top: 4px;">
+                                Extensões permitidas: PDF, PNG, JPG, JPEG, DOC, DOCX. Tamanho máximo: 10MB.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; border-top: 1px solid #EDF2F7; padding-top: 20px;">
+                        <a th:href="@{/colaborador/formularios}" class="btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn-primary" style="padding: 12px 28px;">
+                            <i class="bi bi-send-fill"></i> Submeter Solicitação
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

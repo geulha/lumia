@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Detalhes do Chamado - ' + ${ticket.codigoFormatado})}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px;">
+            <a th:href="@{/colaborador/solicitacoes}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar para Minhas Solicitações
+            </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <span style="color: var(--accent-green); font-weight: 700; font-size: 15px;" th:text="${ticket.codigoFormatado}">REQ0083619</span>
+                    <h2 class="section-title" style="font-size: 24px;" th:text="${ticket.tipoSolicitacao.nome}">Agendamento de Férias</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="status-tag" style="font-size: 14px; padding: 6px 14px;" th:classappend="${ticket.status.classeCss}" th:text="${ticket.status.descricao}">
+                        Pendente
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+
+            <!-- Coluna Esquerda: Dados Preenchidos no Formulário -->
+            <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7; height: fit-content;">
+                <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 18px; border-bottom: 1px solid #EDF2F7; padding-bottom: 10px;">
+                    Informações da Solicitação
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background: #F8FAFC; padding: 14px; border-radius: 12px;">
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Aberto em</span>
+                        <strong style="display: block; font-size: 13px;" th:text="${ticket.dataHoraFormatada}">11/06/2026 às 14:30</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Categoria</span>
+                        <strong style="display: block; font-size: 13px;" th:text="${ticket.tipoSolicitacao.categoria}">Férias</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Solicitante</span>
+                        <strong style="display: block; font-size: 13px;" th:text="${ticket.colaborador.nome}">Carol Sturka</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Analista de RH</span>
+                        <strong style="display: block; font-size: 13px;" th:if="${ticket.analista != null}" th:text="${ticket.analista.nome}">Zosia Hivemind</strong>
+                        <strong style="display: block; font-size: 13px; color: var(--text-muted);" th:unless="${ticket.analista != null}">Aguardando atribuição</strong>
+                    </div>
+                </div>
+
+                <h4 style="font-size: 15px; font-weight: 700; color: #2D3748; margin-bottom: 14px;">Respostas do Formulário</h4>
+
+                <div th:each="resp : ${ticket.respostas}" style="margin-bottom: 16px; border-bottom: 1px solid #F1F5F9; padding-bottom: 12px;">
+                    <span style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px;" th:text="${resp.campo.rotulo}">
+                        Rótulo do Campo
+                    </span>
+
+                    <!-- Valor Texto / Data / Seleção -->
+                    <div th:if="${resp.valorTexto != null and !resp.valorTexto.isBlank()}" style="font-size: 14px; color: #1A202C; white-space: pre-wrap;" th:text="${resp.valorTexto}">
+                        Resposta preenchida
+                    </div>
+
+                    <!-- Anexo de Arquivo -->
+                    <div th:if="${resp.caminhoArquivo != null and !resp.caminhoArquivo.isBlank()}" style="margin-top: 6px;">
+                        <a th:href="@{/colaborador/solicitacoes/{id}/anexos/{respId}(id=${ticket.id}, respId=${resp.id})}" target="_blank" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">
+                            <i class="bi bi-paperclip"></i>
+                            <span th:text="${resp.nomeArquivoOriginal}">baixar_documento.pdf</span>
+                            <i class="bi bi-download" style="margin-left: 6px;"></i>
+                        </a>
+                    </div>
+
+                    <div th:if="${(resp.valorTexto == null or resp.valorTexto.isBlank()) and (resp.caminhoArquivo == null or resp.caminhoArquivo.isBlank())}" style="font-size: 13px; color: #A0AEC0; font-style: italic;">
+                        Não informado
+                    </div>
+                </div>
+
+                <!-- Resumo da Aprovação se aplicável -->
+                <div th:if="${ticket.tipoSolicitacao.requerAprovacao and !#lists.isEmpty(ticket.aprovacoes)}" style="margin-top: 25px; padding: 16px; background-color: #F8FAFC; border-radius: 12px; border: 1px solid #E2E8F0;">
+                    <h5 style="font-size: 14px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px;">
+                        <i class="bi bi-shield-check"></i> Avaliação da Gestão Imediata
+                    </h5>
+                    <div th:each="ap : ${ticket.aprovacoes}">
+                        <p style="font-size: 13px; margin-bottom: 4px;">
+                            Aprovador: <strong th:text="${ap.aprovador.nome}">Helen Sturka</strong>
+                        </p>
+                        <p style="font-size: 13px; margin-bottom: 4px;">
+                            Decisão: <span class="status-tag" th:classappend="${ap.decisao.name() == 'APROVADO' ? 'badge-aberto' : (ap.decisao.name() == 'REJEITADO' ? 'badge-reprovado' : 'badge-pendente')}" th:text="${ap.decisao.descricao}">Aprovado</span>
+                        </p>
+                        <p th:if="${ap.comentario != null and !ap.comentario.isBlank()}" style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-style: italic;">
+                            "<span th:text="${ap.comentario}">Justificativa</span>"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Linha do Tempo de Interações & Mensagens (RF05) -->
+            <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 18px; border-bottom: 1px solid #EDF2F7; padding-bottom: 10px;">
+                        Histórico & Devolutivas (Linha do Tempo)
+                    </h3>
+
+                    <div style="position: relative; padding-left: 20px; border-left: 2px solid #E2E8F0; margin-left: 10px; margin-bottom: 25px;">
+                        <div th:each="interacao : ${ticket.interacoes}" style="margin-bottom: 22px; position: relative;">
+                            <!-- Marcador circular da timeline -->
+                            <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background-color: var(--primary-purple); border: 2px solid white; box-shadow: 0 0 0 2px var(--primary-purple);"></div>
+
+                            <div style="background: #F8FAFC; border-radius: 12px; padding: 14px 16px; border: 1px solid #EDF2F7;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <div>
+                                        <strong style="font-size: 13px; color: var(--primary-dark);" th:text="${interacao.autor.nome}">Autor</strong>
+                                        <span style="font-size: 11px; color: var(--text-muted); margin-left: 6px;" th:text="'(' + ${interacao.autor.isRh() ? 'Equipe de RH' : 'Colaborador'} + ')'"></span>
+                                    </div>
+                                    <span class="status-tag" style="font-size: 10px; padding: 2px 8px;"
+                                          th:classappend="${interacao.tipo.name() == 'DEVOLUTIVA' ? 'badge-aberto' : (interacao.tipo.name() == 'MUDANCA_STATUS' ? 'badge-pendente' : 'badge-concluido')}"
+                                          th:text="${interacao.tipo.descricao}">Comentário</span>
+                                </div>
+
+                                <p style="font-size: 13px; color: #2D3748; line-height: 1.5; white-space: pre-wrap;" th:text="${interacao.conteudo}">
+                                    Conteúdo da mensagem ou histórico...
+                                </p>
+
+                                <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 6px;" th:text="${interacao.dataHoraFormatada}">
+                                    11/06/2026 às 14:35
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enviar Comentário / Devolutiva -->
+                <div style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
+                    <form th:action="@{/colaborador/solicitacoes/{id}/comentar(id=${ticket.id})}" method="post">
+                        <label for="conteudo" class="form-label" style="font-size: 13px;">Adicionar Mensagem ou Dúvida:</label>
+                        <textarea id="conteudo" name="conteudo" class="form-control" rows="3" placeholder="Escreva aqui uma mensagem para o RH ou esclarecimento sobre este chamado..." required></textarea>
+                        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                            <button type="submit" class="btn-primary" style="padding: 8px 20px; font-size: 13px;">
+                                <i class="bi bi-chat-dots-fill"></i> Enviar Mensagem
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
