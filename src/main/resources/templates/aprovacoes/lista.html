@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Minhas Aprovações')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <a th:href="@{/}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Meu Painel
+                </a>
+                <h2 class="section-title" style="font-size: 24px;">Minhas Aprovações</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Avalie as solicitações da sua equipe que exigem aprovação prévia da gestão.</p>
+            </div>
+        </div>
+
+        <!-- Seção: Pendências de Aprovação -->
+        <div style="margin-bottom: 35px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--primary-dark);">Pendências de Avaliação</h3>
+                <span class="badge-counter" th:if="${#lists.size(pendentes) > 0}" th:text="${#lists.size(pendentes)}">1</span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(pendentes)}" style="background: white; border-radius: 20px; padding: 45px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
+                <i class="bi bi-check2-all" style="font-size: 40px; color: #8BC34A; display: block; margin-bottom: 8px;"></i>
+                <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhuma aprovação pendente!</h4>
+                <p style="color: var(--text-muted); font-size: 13px;">Todas as solicitações de membros da sua equipe foram avaliadas.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(pendentes)}" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <table class="lumia-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Solicitante</th>
+                            <th>Cargo / Posto</th>
+                            <th>Tipo de Solicitação</th>
+                            <th>Data de Envio</th>
+                            <th style="text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ap : ${pendentes}">
+                            <td>
+                                <strong style="color: var(--accent-green); font-size: 14px;" th:text="${ap.ticket.codigoFormatado}">REQ0083619</strong>
+                            </td>
+                            <td>
+                                <strong th:text="${ap.ticket.colaborador.nome}" style="font-size: 14px; display: block;">Carol Sturka</strong>
+                                <small th:text="${ap.ticket.colaborador.email}" style="color: var(--text-muted); font-size: 11px;"></small>
+                            </td>
+                            <td>
+                                <span th:text="${ap.ticket.colaborador.posto != null ? ap.ticket.colaborador.posto : '-'}" style="font-size: 13px;">Analista Financeiro</span>
+                            </td>
+                            <td>
+                                <strong th:text="${ap.ticket.tipoSolicitacao.nome}" style="font-size: 14px; display: block;">Agendamento de Férias</strong>
+                                <span class="status-tag" style="background-color: #F1F5F9; color: #475569; font-size: 11px;" th:text="${ap.ticket.tipoSolicitacao.categoria}">Férias</span>
+                            </td>
+                            <td>
+                                <span th:text="${ap.ticket.dataFormatada}" style="font-size: 13px;">11/06/2026</span>
+                                <small th:text="${ap.ticket.tempoRelativo}" style="color: var(--text-muted); font-size: 11px; display: block;"></small>
+                            </td>
+                            <td style="text-align: right;">
+                                <a th:href="@{/aprovacoes/{id}(id=${ap.id})}" class="btn-primary" style="padding: 7px 16px; font-size: 12px; border-radius: 10px;">
+                                    <i class="bi bi-eye-fill"></i> Avaliar
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção: Histórico de Solicitações Já Decididas -->
+        <div th:unless="${#lists.isEmpty(historico)}">
+            <h3 style="font-size: 18px; font-weight: 700; color: #4A5568; margin-bottom: 16px;">Histórico de Avaliações Realizadas</h3>
+
+            <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <table class="lumia-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Solicitante</th>
+                            <th>Tipo de Solicitação</th>
+                            <th>Decisão do Gestor</th>
+                            <th>Data da Decisão</th>
+                            <th>Comentário Registrado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="h : ${historico}">
+                            <td>
+                                <strong style="color: var(--accent-green); font-size: 14px;" th:text="${h.ticket.codigoFormatado}">REQ0036284</strong>
+                            </td>
+                            <td>
+                                <span th:text="${h.ticket.colaborador.nome}" style="font-size: 13px; font-weight: 500;">Carol Sturka</span>
+                            </td>
+                            <td>
+                                <span th:text="${h.ticket.tipoSolicitacao.nome}" style="font-size: 13px;">Agendamento de Férias</span>
+                            </td>
+                            <td>
+                                <span class="status-tag" th:classappend="${h.decisao.name() == 'APROVADO' ? 'badge-aberto' : 'badge-reprovado'}" th:text="${h.decisao.descricao}">Rejeitado</span>
+                            </td>
+                            <td>
+                                <span th:text="${h.dataFormatada}" style="font-size: 13px;">05/06/2026</span>
+                            </td>
+                            <td>
+                                <span th:text="${h.comentario != null ? h.comentario : '-'}" style="font-size: 12px; color: var(--text-muted); font-style: italic;">Comentário</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

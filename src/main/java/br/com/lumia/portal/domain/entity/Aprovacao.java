@@ -64,6 +64,16 @@ public class Aprovacao {
         return "";
     }
 
+    public String getDataFormatada() {
+        if (decididoEm != null) {
+            return decididoEm.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        if (criado != null) {
+            return criado.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        return "";
+    }
+
     // Getters and Setters
     public Integer getId() {
         return id;
