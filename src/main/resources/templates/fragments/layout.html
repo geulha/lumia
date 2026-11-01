@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title + ' - Lumia' : 'Lumia - Portal do Colaborador'}">Lumia - Portal do Colaborador</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Ícones SVG inline ou Phosphor/Bootstrap Icons simples -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+    <!-- Header Principal -->
+    <header th:fragment="header" class="lumia-header">
+        <a th:href="@{/}" class="lumia-brand">Lumia</a>
+
+        <!-- Barra de busca no cabeçalho (visível para RH ou telas internas) -->
+        <div class="lumia-header-center" th:if="${usuarioLogado != null and usuarioLogado.isRh()}">
+            <form th:action="@{/rh/tickets/abertos}" method="get" class="header-search-box">
+                <input type="text" name="termo" placeholder="Buscar chamados, colaboradores..." th:value="${param.termo}">
+                <i class="bi bi-search search-icon" onclick="this.closest('form').submit()"></i>
+            </form>
+        </div>
+        <div class="lumia-header-center" th:unless="${usuarioLogado != null and usuarioLogado.isRh()}">
+            <!-- Espaço flexível central para colaborador -->
+        </div>
+
+        <!-- Ações do Cabeçalho -->
+        <div class="lumia-header-actions" th:if="${usuarioLogado != null}">
+            <!-- Notificações (Sino) -->
+            <div class="notification-bell" title="Notificações">
+                <i class="bi bi-bell"></i>
+            </div>
+
+            <!-- Minhas Aprovações (com bolinha vermelha e indicador de pendências) -->
+            <a th:href="@{/aprovacoes}" class="aprovacoes-link" title="Aprovações Pendentes">
+                <span>Minhas Aprovações</span>
+                <span class="badge-counter" th:if="${pendenciasAprovacaoCount > 0}" th:text="${pendenciasAprovacaoCount}">1</span>
+            </a>
+
+            <!-- Menu de Usuário -->
+            <div class="user-profile-menu">
+                <div class="user-avatar" th:text="${usuarioLogado.primeiroNome.substring(0,1)}">C</div>
+                <span class="user-name-label" th:text="${usuarioLogado.nome}">Carol Sturka</span>
+                <i class="bi bi-chevron-down" style="font-size: 11px; color: #718096;"></i>
+
+                <div class="user-dropdown-content">
+                    <div style="padding: 10px 16px; border-bottom: 1px solid #EDF2F7;">
+                        <strong th:text="${usuarioLogado.nome}" style="display:block; font-size:13px;">Nome</strong>
+                        <small th:text="${usuarioLogado.posto != null ? usuarioLogado.posto : usuarioLogado.perfil.descricao}" style="color: #718096; font-size:11px;">Cargo</small>
+                    </div>
+                    <a th:if="${usuarioLogado.isColaborador()}" th:href="@{/colaborador}">
+                        <i class="bi bi-house me-2"></i> Portal Principal
+                    </a>
+                    <a th:if="${usuarioLogado.isColaborador()}" th:href="@{/colaborador/solicitacoes}">
+                        <i class="bi bi-card-checklist me-2"></i> Minhas Solicitações
+                    </a>
+                    <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh}">
+                        <i class="bi bi-speedometer2 me-2"></i> Painel do RH
+                    </a>
+                    <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/usuarios}">
+                        <i class="bi bi-people me-2"></i> Gerenciar Usuários
+                    </a>
+                    <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/formularios}">
+                        <i class="bi bi-ui-checks me-2"></i> Gerenciar Formulários
+                    </a>
+                    <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/base-conhecimento}">
+                        <i class="bi bi-book me-2"></i> Base de Conhecimento
+                    </a>
+                    <a th:href="@{/artigos}">
+                        <i class="bi bi-journal-text me-2"></i> Consultar FAQs
+                    </a>
+                    <form th:action="@{/logout}" method="post" id="logoutForm" style="margin: 0;">
+                        <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: 10px 16px; color: #D32F2F; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-box-arrow-right"></i> Sair
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Alertas Flash -->
+    <div th:fragment="alerts" class="lumia-main-content" style="padding-top: 15px; padding-bottom: 0;" th:if="${mensagemSucesso != null or mensagemErro != null or mensagemAlerta != null}">
+        <div class="alert alert-success" th:if="${mensagemSucesso != null}">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+        </div>
+        <div class="alert alert-danger" th:if="${mensagemErro != null}">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span th:text="${mensagemErro}">Ocorreu um erro no processamento.</span>
+        </div>
+        <div class="alert alert-warning" th:if="${mensagemAlerta != null}">
+            <i class="bi bi-info-circle-fill"></i>
+            <span th:text="${mensagemAlerta}">Atenção a esta mensagem.</span>
+        </div>
+    </div>
+
+    <!-- Rodapé Principal (Fiel ao protótipo) -->
+    <footer th:fragment="footer" class="lumia-footer">
+        <div class="footer-left">
+            <h5>Empresa</h5>
+            <p>Rua Pública, 123, Bairro, Cidade, SP, 11111-111</p>
+            <p>CNPJ: 000.000.000/00</p>
+        </div>
+        <div class="footer-right">
+            empresalogo™
+        </div>
+    </footer>
+
+</body>
+</html>
