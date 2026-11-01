@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Gerenciar Formulários')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+                </a>
+                <h2 class="section-title" style="font-size: 24px;">Gerenciar Formulários</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Crie e configure os tipos de solicitação disponíveis no portal de autoatendimento.</p>
+            </div>
+            <a th:href="@{/rh/gerenciar/formularios/novo}" class="btn-primary">
+                <i class="bi bi-plus-circle-fill"></i> Criar Novo Formulário
+            </a>
+        </div>
+
+        <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Nome do Formulário</th>
+                        <th>Categoria</th>
+                        <th>Aprovação Gestor</th>
+                        <th>Campos Dinâmicos</th>
+                        <th>Visibilidade</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="f : ${formularios}">
+                        <td>
+                            <strong th:text="${f.nome}" style="font-size: 14px; display: block;">Agendamento de Férias</strong>
+                            <small th:text="${f.descricao}" style="color: var(--text-muted); font-size: 12px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">Descrição da solicitação</small>
+                        </td>
+                        <td>
+                            <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${f.categoria}">Férias</span>
+                        </td>
+                        <td>
+                            <span th:if="${f.requerAprovacao}" class="status-tag badge-pendente">
+                                <i class="bi bi-shield-check"></i> Requer Gestor
+                            </span>
+                            <span th:unless="${f.requerAprovacao}" class="status-tag badge-concluido">
+                                Direto ao RH
+                            </span>
+                        </td>
+                        <td>
+                            <span th:text="${#lists.size(f.campos)} + ' campo(s)'" style="font-weight: 600; font-size: 13px;">4 campos</span>
+                        </td>
+                        <td>
+                            <span th:if="${f.visivelParaPosto != null and !f.visivelParaPosto.isBlank()}" th:text="'Posto: ' + ${f.visivelParaPosto}" style="font-size: 12px;">Todos</span>
+                            <span th:unless="${f.visivelParaPosto != null and !f.visivelParaPosto.isBlank()}" style="font-size: 12px; color: var(--text-muted);">Todos os colaboradores</span>
+                        </td>
+                        <td>
+                            <span th:if="${f.ativo}" class="status-tag" style="background-color: #E8F5E9; color: #2E7D32;">Ativo</span>
+                            <span th:unless="${f.ativo}" class="status-tag" style="background-color: #EEEEEE; color: #757575;">Inativo</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px; align-items: center;">
+                                <a th:href="@{/rh/gerenciar/formularios/{id}/campos(id=${f.id})}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px; background-color: #EAF3DF; color: #33691E;" title="Gerenciar Campos Dinâmicos">
+                                    <i class="bi bi-ui-checks"></i> Campos
+                                </a>
+
+                                <a th:href="@{/rh/gerenciar/formularios/{id}/editar(id=${f.id})}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Editar Configurações">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form th:action="@{/rh/gerenciar/formularios/{id}/toggle-status(id=${f.id})}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" th:title="${f.ativo ? 'Inativar Formulário' : 'Ativar Formulário'}">
+                                        <i class="bi" th:classappend="${f.ativo ? 'bi-toggle-on text-success' : 'bi-toggle-off text-muted'}"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/rh/gerenciar/formularios/{id}/excluir(id=${f.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja excluir este formulário?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Excluir Formulário">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

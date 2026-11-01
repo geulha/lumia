@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${isEdicao} ? 'Editar Formulário' : 'Novo Formulário')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="max-width: 750px; margin: 0 auto;">
+            <a th:href="@{/rh/gerenciar/formularios}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                <i class="bi bi-arrow-left"></i> Voltar para Lista de Formulários
+            </a>
+
+            <div style="background: white; border-radius: 24px; padding: 35px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <h2 class="section-title" style="font-size: 22px; margin-bottom: 6px;" th:text="${isEdicao} ? 'Editar Formulário: ' + ${formularioNome} : 'Criar Novo Formulário de Solicitação'">
+                    Criar Novo Formulário
+                </h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 25px;">
+                    Defina o nome, categoria, regras de aprovação e público-alvo deste tipo de chamado.
+                </p>
+
+                <form th:action="${isEdicao} ? @{/rh/gerenciar/formularios/{id}/editar(id=${tipoForm.id})} : @{/rh/gerenciar/formularios/novo}"
+                      th:object="${tipoForm}" method="post">
+
+                    <input type="hidden" th:if="${isEdicao}" th:field="*{id}">
+
+                    <div class="form-group">
+                        <label for="nome" class="form-label">Nome da Solicitação / Formulário *</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="form-control" placeholder="Ex.: Agendamento de Férias" required>
+                        <div th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" style="color: #D32F2F; font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="categoria" class="form-label">Categoria de Acesso Rápido *</label>
+                            <input list="listaCategorias" id="categoria" th:field="*{categoria}" class="form-control" placeholder="Ex.: Férias, Benefícios, Folha..." required>
+                            <datalist id="listaCategorias">
+                                <option th:each="cat : ${categorias}" th:value="${cat}"></option>
+                            </datalist>
+                            <div th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}" style="color: #D32F2F; font-size: 12px; margin-top: 4px;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="visivelParaPerfil" class="form-label">Visibilidade por Perfil</label>
+                            <select id="visivelParaPerfil" th:field="*{visivelParaPerfil}" class="form-control">
+                                <option value="">Todos os perfis</option>
+                                <option th:each="p : ${perfis}" th:value="${p}" th:text="${p.descricao}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visivelParaPosto" class="form-label">Restrição por Cargo / Posto (Opcional)</label>
+                        <input type="text" id="visivelParaPosto" th:field="*{visivelParaPosto}" class="form-control" placeholder="Deixe em branco para permitir todos os cargos">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Instruções / Descrição para o Colaborador</label>
+                        <textarea id="descricao" th:field="*{descricao}" class="form-control" rows="3" placeholder="Orientações que aparecem no cabeçalho do formulário ao abrir a solicitação..."></textarea>
+                    </div>
+
+                    <div style="background: #F8FAFC; padding: 18px 20px; border-radius: 14px; margin-bottom: 25px; border: 1px solid #EDF2F7;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin-bottom: 12px;">
+                            <input type="checkbox" th:field="*{requerAprovacao}" style="margin-top: 4px;">
+                            <div>
+                                <strong style="font-size: 14px; color: var(--primary-dark);">Requer Aprovação Prévia do Gestor Imediato (RF06)</strong>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                    Ao marcar esta opção, o chamado entrará com status <strong>Pendente</strong> e só seguirá para a fila do RH após o gestor imediato aprovar na aba "Minhas Aprovações".
+                                </p>
+                            </div>
+                        </label>
+
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" th:field="*{ativo}">
+                            <span style="font-size: 14px;">Formulário Ativo e disponível para abertura no Portal</span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <a th:href="@{/rh/gerenciar/formularios}" class="btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn-primary">
+                            <i class="bi bi-arrow-right-circle"></i>
+                            <span th:text="${isEdicao} ? 'Salvar Configurações' : 'Avançar para Construtor de Campos'">Avançar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

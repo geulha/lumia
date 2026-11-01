@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Construtor de Campos - ' + ${formulario.nome})}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 20px;">
+            <a th:href="@{/rh/gerenciar/formularios}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <i class="bi bi-arrow-left"></i> Voltar para Lista de Formulários
+            </a>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 class="section-title" style="font-size: 24px;" th:text="'Campos do Formulário: ' + ${formulario.nome}">
+                        Campos do Formulário
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 13px;">
+                        Categoria: <strong th:text="${formulario.categoria}">Férias</strong> | 
+                        Aprovação Prévia: <strong th:text="${formulario.requerAprovacao ? 'Sim' : 'Não'}">Sim</strong>
+                    </p>
+                </div>
+                <a th:href="@{/rh/gerenciar/formularios}" class="btn-success">
+                    <i class="bi bi-check-lg"></i> Concluir Configuração
+                </a>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: 25px;">
+
+            <!-- Coluna da Esquerda: Lista de Campos Existentes -->
+            <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+                <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 16px;">
+                    Campos Atuais do Formulário (<span th:text="${#lists.size(formulario.campos)}">0</span>)
+                </h3>
+
+                <div th:if="${#lists.isEmpty(formulario.campos)}" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                    <i class="bi bi-input-cursor-text" style="font-size: 36px; display: block; margin-bottom: 10px; color: #CBD5E0;"></i>
+                    <p>Nenhum campo cadastrado ainda. Use o painel ao lado para adicionar os campos que o colaborador deverá preencher.</p>
+                </div>
+
+                <table class="lumia-table" th:unless="${#lists.isEmpty(formulario.campos)}">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Ordem</th>
+                            <th>Rótulo / Pergunta</th>
+                            <th>Tipo</th>
+                            <th>Obrigatório</th>
+                            <th style="text-align: right;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${formulario.campos}">
+                            <td>
+                                <span style="font-weight: 700; font-size: 14px; color: var(--primary-dark);" th:text="${c.ordem}">1</span>
+                            </td>
+                            <td>
+                                <strong th:text="${c.rotulo}" style="font-size: 14px; display: block;">Data de Início</strong>
+                                <small th:if="${c.tipoCampo.name() == 'SELECAO'}" th:text="'Opções: ' + ${c.opcoes}" style="color: var(--text-muted); font-size: 11px;"></small>
+                            </td>
+                            <td>
+                                <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${c.tipoCampo.descricao}">Texto Curto</span>
+                            </td>
+                            <td>
+                                <span th:if="${c.obrigatorio}" class="status-tag badge-reprovado" style="font-size: 11px;">Obrigatório</span>
+                                <span th:unless="${c.obrigatorio}" class="status-tag badge-concluido" style="font-size: 11px;">Opcional</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <form th:action="@{/rh/gerenciar/formularios/{id}/campos/{campoId}/excluir(id=${formulario.id}, campoId=${c.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja remover este campo do formulário?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 5px 10px; font-size: 12px; border-radius: 8px;" title="Remover Campo">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Coluna da Direita: Adicionar Novo Campo -->
+            <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7; height: fit-content;">
+                <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px;">
+                    Adicionar Campo
+                </h3>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 20px;">
+                    Insira uma nova pergunta ou solicitação de anexo para este formulário.
+                </p>
+
+                <form th:action="@{/rh/gerenciar/formularios/{id}/campos/adicionar(id=${formulario.id})}"
+                      th:object="${campoForm}" method="post">
+
+                    <div class="form-group">
+                        <label for="rotulo" class="form-label">Rótulo / Título do Campo *</label>
+                        <input type="text" id="rotulo" th:field="*{rotulo}" class="form-control" placeholder="Ex.: Motivo do Pedido, Data de Início..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipoCampo" class="form-label">Tipo de Campo *</label>
+                        <select id="tipoCampo" th:field="*{tipoCampo}" class="form-control" onchange="toggleOpcoes(this.value)">
+                            <option th:each="tc : ${tiposCampo}" th:value="${tc}" th:text="${tc.descricao}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="grupoOpcoes" style="display: none;">
+                        <label for="opcoes" class="form-label">Opções de Escolha (separadas por vírgula)</label>
+                        <textarea id="opcoes" th:field="*{opcoes}" class="form-control" rows="2" placeholder="Ex.: Sim, Não ou Básico, Intermediário, Avançado"></textarea>
+                        <small style="color: var(--text-muted); font-size: 11px;">Obrigatório apenas para o tipo "Seleção".</small>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label for="ordem" class="form-label">Ordem de Exibição</label>
+                            <input type="number" id="ordem" th:field="*{ordem}" class="form-control" min="1" value="1">
+                        </div>
+
+                        <div class="form-group" style="display: flex; align-items: center; padding-top: 25px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" th:field="*{obrigatorio}"> Campo Obrigatório
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+                        <i class="bi bi-plus-lg"></i> Adicionar Campo
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    <script>
+        function toggleOpcoes(valor) {
+            const grupo = document.getElementById('grupoOpcoes');
+            if (valor === 'SELECAO') {
+                grupo.style.display = 'block';
+            } else {
+                grupo.style.display = 'none';
+            }
+        }
+        // Inicializa estado ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleOpcoes(document.getElementById('tipoCampo').value);
+        });
+    </script>
+
+</body>
+</html>
