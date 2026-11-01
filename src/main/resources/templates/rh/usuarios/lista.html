@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Gerenciar Usuários')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+
+        <!-- Alerta de Senha Temporária Gerada (RF01 / UC08) -->
+        <div th:if="${senhaTemporaria != null}" class="alert alert-success" style="background-color: #E8F5E9; border: 2px solid #81C784; padding: 20px; border-radius: 16px; margin-bottom: 25px;">
+            <div style="font-size: 24px; color: #2E7D32; margin-right: 15px;">
+                <i class="bi bi-key-fill"></i>
+            </div>
+            <div style="flex: 1;">
+                <h4 style="color: #2E7D32; font-size: 16px; font-weight: 700; margin-bottom: 4px;">Senha Temporária Gerada pelo Sistema!</h4>
+                <p style="font-size: 13px; color: #1B5E20; margin-bottom: 8px;">
+                    Repasse as seguintes credenciais ao colaborador (<span th:text="${emailCadastrado}">email</span>):
+                </p>
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: white; padding: 6px 14px; border-radius: 8px; border: 1px solid #A5D6A7;">
+                    <span style="font-family: monospace; font-size: 16px; font-weight: 700; color: #1B5E20;" id="tempPass" th:text="${senhaTemporaria}">senhaTemp123</span>
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('tempPass').innerText); alert('Senha copiada para a área de transferência!');" class="btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;">
+                        <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+                </a>
+                <h2 class="section-title" style="font-size: 24px;">Gerenciar Usuários</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Cadastre novos colaboradores, atualize cargos, hierarquias e permissões de acesso.</p>
+            </div>
+            <a th:href="@{/rh/gerenciar/usuarios/novo}" class="btn-primary">
+                <i class="bi bi-person-plus-fill"></i> Novo Usuário
+            </a>
+        </div>
+
+        <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Nome & E-mail</th>
+                        <th>Cargo / Posto</th>
+                        <th>Gestor Imediato</th>
+                        <th>Perfil</th>
+                        <th>Situação</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${usuarios}">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="user-avatar" style="width: 34px; height: 34px; font-size: 13px;" th:text="${u.primeiroNome.substring(0,1)}">U</div>
+                                <div>
+                                    <strong th:text="${u.nome}" style="display: block; font-size: 14px;">Nome</strong>
+                                    <span th:text="${u.email}" style="color: var(--text-muted); font-size: 12px;">email@lumia.com.br</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${u.posto != null and !u.posto.isBlank() ? u.posto : '-'}" style="font-size: 13px;">Analista</span>
+                        </td>
+                        <td>
+                            <span th:if="${u.gestor != null}" th:text="${u.gestor.nome}" style="font-size: 13px; font-weight: 500;">Gestor</span>
+                            <span th:unless="${u.gestor != null}" style="color: var(--text-muted); font-size: 13px;">Nenhum</span>
+                        </td>
+                        <td>
+                            <span class="status-tag" th:classappend="${u.isRh() ? 'badge-aberto' : 'badge-concluido'}" th:text="${u.perfil.descricao}">Perfil</span>
+                        </td>
+                        <td>
+                            <span th:if="${u.bloqueado}" class="status-tag badge-reprovado">Bloqueado</span>
+                            <span th:unless="${u.bloqueado}">
+                                <span th:if="${u.ativo}" class="status-tag" style="background-color: #E8F5E9; color: #2E7D32;">Ativo</span>
+                                <span th:unless="${u.ativo}" class="status-tag" style="background-color: #EEEEEE; color: #757575;">Inativo</span>
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 6px; align-items: center;">
+                                <a th:href="@{/rh/gerenciar/usuarios/{id}/editar(id=${u.id})}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Editar Usuário">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form th:action="@{/rh/gerenciar/usuarios/{id}/toggle-bloqueio(id=${u.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja realmente alterar o bloqueio deste usuário?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" th:title="${u.bloqueado ? 'Desbloquear Acesso' : 'Bloquear Acesso'}">
+                                        <i class="bi" th:classappend="${u.bloqueado ? 'bi-lock-fill text-danger' : 'bi-unlock'}"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/rh/gerenciar/usuarios/{id}/toggle-status(id=${u.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja alterar a ativação deste usuário?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" th:title="${u.ativo ? 'Inativar Usuário' : 'Ativar Usuário'}">
+                                        <i class="bi" th:classappend="${u.ativo ? 'bi-person-check-fill text-success' : 'bi-person-x text-muted'}"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/rh/gerenciar/usuarios/{id}/reset-senha(id=${u.id})}" method="post" style="display: inline;" onsubmit="return confirm('Deseja gerar uma nova senha temporária para este usuário?');">
+                                    <button type="submit" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;" title="Gerar Nova Senha Temporária">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

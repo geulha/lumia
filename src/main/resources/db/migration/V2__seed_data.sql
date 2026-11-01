@@ -197,3 +197,14 @@ VALUES (6789, 11, '2026-06-30', NULL),
 
 INSERT INTO interacao_ticket (ticket_id, autor_id, tipo, conteudo, status_para, criado)
 VALUES (6789, 1, 'DEVOLUTIVA', 'Processamento concluído. O kit rescisório e agendamento médico foram formalizados.', 'CONCLUIDO', CURRENT_TIMESTAMP - INTERVAL '5' DAY);
+
+-- Ajuste do sequenciador de ID para evitar conflito de chave primária após inserção com IDs manuais
+ALTER TABLE usuario ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE tipo_solicitacao ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE campo_formulario ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE ticket ALTER COLUMN id RESTART WITH 100000;
+ALTER TABLE resposta_formulario ALTER COLUMN id RESTART WITH 1000;
+ALTER TABLE interacao_ticket ALTER COLUMN id RESTART WITH 1000;
+ALTER TABLE aprovacao ALTER COLUMN id RESTART WITH 1000;
+ALTER TABLE artigo ALTER COLUMN id RESTART WITH 1000;
+
