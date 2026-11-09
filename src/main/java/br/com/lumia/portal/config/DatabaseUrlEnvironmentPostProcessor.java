@@ -12,9 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Normaliza automaticamente URLs de banco fornecidas no formato nativo de plataformas cloud
- * como Render, Heroku ou Railway (ex: postgresql://user:pass@host:5432/db ou postgres://...)
- * convertendo-as para a sintaxe exigida pelo JDBC (jdbc:postgresql://host:5432/db).
+ * Normaliza automaticamente URLs de banco de dados fornecidas no formato nativo de nuvens
+ * (como Render, Heroku ou Railway: postgresql://user:pass@host:5432/db) para a sintaxe JDBC.
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProcessor {
@@ -31,7 +30,6 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 
         if (rawUrl != null && (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://"))) {
             try {
-                // Substitui prefixo para validar via URI
                 String cleanUrl = rawUrl.replaceFirst("^postgres(ql)?://", "http://");
                 URI uri = URI.create(cleanUrl);
 
@@ -41,6 +39,9 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
                 String dbName = (path != null && path.length() > 1) ? path.substring(1) : "";
 
                 String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
+                if (uri.getQuery() != null && !uri.getQuery().isBlank()) {
+                    jdbcUrl += "?" + uri.getQuery();
+                }
 
                 Map<String, Object> props = new HashMap<>();
                 props.put("spring.datasource.url", jdbcUrl);
@@ -55,8 +56,9 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
                 }
 
                 environment.getPropertySources().addFirst(new MapPropertySource("renderDbUrlOverridden", props));
-            } catch (Exception ignored) {
-                // Se houver falha de parse, deixa o Spring Boot seguir com a URL original
+                System.out.println("[LUMIA Deploy] Convertida URL do PostgreSQL para JDBC: " + jdbcUrl);
+            } catch (Exception e) {
+                System.err.println("[LUMIA Deploy] Falha ao processar URL do banco: " + e.getMessage());
             }
         }
     }
