@@ -134,7 +134,11 @@
                 </div>
 
                 <!-- Enviar Comentário / Devolutiva -->
-                <div style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
+                <div th:if="${isFinalizado}" style="border-top: 1px solid #EDF2F7; padding-top: 18px; text-align: center; color: var(--text-muted); font-size: 13px; background: #F8FAFC; border-radius: 12px; padding: 14px;">
+                    <i class="bi bi-lock-fill" style="margin-right: 6px; color: #718096;"></i>
+                    Este chamado foi finalizado (<strong th:text="${ticket.status.descricao}">Concluído</strong>). O histórico está preservado apenas para consulta.
+                </div>
+                <div th:unless="${isFinalizado}" style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
                     <form th:action="@{/colaborador/solicitacoes/{id}/comentar(id=${ticket.id})}" method="post">
                         <label for="conteudo" class="form-label" style="font-size: 13px;">Adicionar Mensagem ou Dúvida:</label>
                         <textarea id="conteudo" name="conteudo" class="form-control" rows="3" placeholder="Escreva aqui uma mensagem para o RH ou esclarecimento sobre este chamado..." required></textarea>

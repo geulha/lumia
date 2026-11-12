@@ -32,7 +32,7 @@
             <div class="indicator-col">
                 <div class="indicator-title">Tickets Encerrados</div>
                 <div class="indicator-number" th:text="${contagemEncerrados}">607</div>
-                <span style="color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 4px; display: inline-block;">Concluídos / Reprovados</span>
+                <a th:href="@{/rh/tickets/encerrados}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Concluídos / Reprovados</a>
             </div>
         </div>
 

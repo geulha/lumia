@@ -54,6 +54,9 @@ public class Usuario {
     @Column(name = "bloqueado", nullable = false)
     private Boolean bloqueado = false;
 
+    @Column(name = "primeiro_acesso", nullable = false)
+    private Boolean primeiroAcesso = false;
+
     @Column(name = "criado", nullable = false, updatable = false)
     private LocalDateTime criado = LocalDateTime.now();
 
@@ -166,6 +169,14 @@ public class Usuario {
 
     public void setBloqueado(Boolean bloqueado) {
         this.bloqueado = bloqueado;
+    }
+
+    public Boolean getPrimeiroAcesso() {
+        return primeiroAcesso != null ? primeiroAcesso : false;
+    }
+
+    public void setPrimeiroAcesso(Boolean primeiroAcesso) {
+        this.primeiroAcesso = primeiroAcesso;
     }
 
     public LocalDateTime getCriado() {

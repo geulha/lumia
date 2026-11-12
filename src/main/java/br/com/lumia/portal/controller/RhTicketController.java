@@ -3,11 +3,13 @@ package br.com.lumia.portal.controller;
 import br.com.lumia.portal.domain.entity.Ticket;
 import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.domain.enums.StatusTicket;
+import br.com.lumia.portal.repository.UsuarioRepository;
 import br.com.lumia.portal.service.TicketService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +23,19 @@ import java.util.stream.Collectors;
 public class RhTicketController {
 
     private final TicketService ticketService;
+    private final UsuarioRepository usuarioRepository;
 
-    public RhTicketController(TicketService ticketService) {
+    public RhTicketController(TicketService ticketService, UsuarioRepository usuarioRepository) {
         this.ticketService = ticketService;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    private Usuario getUsuarioLogado(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Sessão expirada. Faça login novamente.");
+        }
+        return usuarioRepository.findByEmailIgnoreCase(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
     }
 
     @GetMapping("/abertos")
@@ -44,38 +56,56 @@ public class RhTicketController {
         return "rh/tickets/abertos";
     }
 
+    @GetMapping("/encerrados")
+    public String listarTicketsEncerrados(Model model) {
+        model.addAttribute("tickets", ticketService.listarEncerrados());
+        return "rh/tickets/encerrados";
+    }
+
     @GetMapping("/{id}")
     public String atendimentoTicket(@PathVariable("id") Integer id,
-                                    @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                    Authentication authentication,
                                     Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         Ticket ticket = ticketService.buscarPorId(id);
         model.addAttribute("ticket", ticket);
         model.addAttribute("statusPossiveis", StatusTicket.values());
+        model.addAttribute("isFinalizado", ticket.isFinalizado());
         model.addAttribute("isAnalistaResponsavel", ticket.getAnalista() != null && ticket.getAnalista().getId().equals(usuarioLogado.getId()));
         return "rh/tickets/atendimento";
     }
 
     @PostMapping("/{id}/atribuir")
     public String atribuirAMim(@PathVariable("id") Integer id,
-                               @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                               Authentication authentication,
                                RedirectAttributes redirectAttributes) {
-        ticketService.atribuirAnalista(id, usuarioLogado);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Ticket atribuído a você com sucesso! Status alterado para Em Andamento.");
+        try {
+            Usuario usuarioLogado = getUsuarioLogado(authentication);
+            ticketService.atribuirAnalista(id, usuarioLogado);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Ticket atribuído a você com sucesso! Status alterado para Em Andamento.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao atribuir ticket: " + ex.getMessage());
+        }
         return "redirect:/rh/tickets/" + id;
     }
 
     @PostMapping("/{id}/comentar")
     public String adicionarDevolutiva(@PathVariable("id") Integer id,
                                       @RequestParam("conteudo") String conteudo,
-                                      @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                      Authentication authentication,
                                       RedirectAttributes redirectAttributes) {
         if (conteudo == null || conteudo.isBlank()) {
             redirectAttributes.addFlashAttribute("mensagemErro", "A mensagem da devolutiva não pode ser vazia.");
             return "redirect:/rh/tickets/" + id;
         }
 
-        ticketService.adicionarComentario(id, usuarioLogado, conteudo);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Devolutiva registrada com sucesso! O colaborador receberá esta atualização.");
+        try {
+            Usuario usuarioLogado = getUsuarioLogado(authentication);
+            ticketService.adicionarComentario(id, usuarioLogado, conteudo);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Devolutiva registrada com sucesso! O colaborador receberá esta atualização.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("mensagemErro", ex.getMessage());
+        }
         return "redirect:/rh/tickets/" + id;
     }
 
@@ -83,11 +113,15 @@ public class RhTicketController {
     public String atualizarStatus(@PathVariable("id") Integer id,
                                   @RequestParam("status") StatusTicket novoStatus,
                                   @RequestParam(value = "justificativa", required = false) String justificativa,
-                                  @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                  Authentication authentication,
                                   RedirectAttributes redirectAttributes) {
-
-        ticketService.alterarStatus(id, usuarioLogado, novoStatus, justificativa);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Status do ticket alterado para '" + novoStatus.getDescricao() + "' com sucesso!");
+        try {
+            Usuario usuarioLogado = getUsuarioLogado(authentication);
+            ticketService.alterarStatus(id, usuarioLogado, novoStatus, justificativa);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Status do ticket alterado para '" + novoStatus.getDescricao() + "' com sucesso!");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("mensagemErro", "Erro ao atualizar status: " + ex.getMessage());
+        }
         return "redirect:/rh/tickets/" + id;
     }
 
@@ -95,7 +129,8 @@ public class RhTicketController {
     @ResponseBody
     public ResponseEntity<Resource> baixarAnexo(@PathVariable("id") Integer id,
                                                 @PathVariable("respostaId") Integer respostaId,
-                                                @ModelAttribute("usuarioLogado") Usuario usuarioLogado) {
+                                                Authentication authentication) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         Resource resource = ticketService.carregarAnexo(id, respostaId, usuarioLogado);
 
         return ResponseEntity.ok()

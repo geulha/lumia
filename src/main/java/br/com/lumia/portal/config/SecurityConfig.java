@@ -50,10 +50,11 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/h2-console/**").permitAll()
-                .requestMatchers("/login", "/acesso-negado").permitAll()
+                .requestMatchers("/login", "/recuperar-senha", "/acesso-negado").permitAll()
+                .requestMatchers("/trocar-senha").authenticated()
                 .requestMatchers("/rh/**").hasRole("RH")
                 .requestMatchers("/colaborador/**").hasRole("COLABORADOR")
-                .requestMatchers("/aprovacoes/**", "/artigos/**", "/tickets/**").hasAnyRole("COLABORADOR", "RH")
+                .requestMatchers("/aprovacoes/**", "/artigos/**", "/tickets/**", "/busca/**").hasAnyRole("COLABORADOR", "RH")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

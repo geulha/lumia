@@ -19,9 +19,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RhFormularioController {
 
     private final TipoSolicitacaoService tipoSolicitacaoService;
+    private final br.com.lumia.portal.repository.UsuarioRepository usuarioRepository;
 
-    public RhFormularioController(TipoSolicitacaoService tipoSolicitacaoService) {
+    public RhFormularioController(TipoSolicitacaoService tipoSolicitacaoService,
+                                  br.com.lumia.portal.repository.UsuarioRepository usuarioRepository) {
         this.tipoSolicitacaoService = tipoSolicitacaoService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping
@@ -43,7 +46,7 @@ public class RhFormularioController {
     @PostMapping("/novo")
     public String criarFormulario(@Valid @ModelAttribute("tipoForm") TipoSolicitacaoForm form,
                                   BindingResult result,
-                                  @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                  org.springframework.security.core.Authentication authentication,
                                   Model model,
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
@@ -54,6 +57,8 @@ public class RhFormularioController {
         }
 
         try {
+            Usuario usuarioLogado = usuarioRepository.findByEmailIgnoreCase(authentication.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
             TipoSolicitacao criado = tipoSolicitacaoService.criar(form, usuarioLogado);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Formulário criado com sucesso! Agora defina os campos de preenchimento.");
             return "redirect:/rh/gerenciar/formularios/" + criado.getId() + "/campos";

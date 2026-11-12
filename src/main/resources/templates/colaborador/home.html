@@ -14,8 +14,8 @@
             <h1 class="banner-title" th:text="'Olá ' + ${usuarioLogado.primeiroNome} + ','">Olá Carol,</h1>
             <p class="banner-subtitle">Bem-vinda ao Portal do Colaborador</p>
 
-            <form th:action="@{/colaborador/formularios}" method="get" class="banner-search-container">
-                <input type="text" name="termo" placeholder="Buscar formulários, solicitações ou assuntos...">
+            <form th:action="@{/busca}" method="get" class="banner-search-container">
+                <input type="text" name="termo" placeholder="Buscar solicitações, artigos da base de conhecimento, benefícios...">
                 <i class="bi bi-search search-icon" onclick="this.closest('form').submit()"></i>
             </form>
         </div>

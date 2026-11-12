@@ -4,6 +4,7 @@ import br.com.lumia.portal.domain.entity.Ticket;
 import br.com.lumia.portal.domain.entity.TipoSolicitacao;
 import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.domain.enums.StatusTicket;
+import br.com.lumia.portal.repository.UsuarioRepository;
 import br.com.lumia.portal.service.TicketService;
 import br.com.lumia.portal.service.TipoSolicitacaoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,17 +29,29 @@ public class TicketColaboradorController {
 
     private final TicketService ticketService;
     private final TipoSolicitacaoService tipoSolicitacaoService;
+    private final UsuarioRepository usuarioRepository;
 
     public TicketColaboradorController(TicketService ticketService,
-                                       TipoSolicitacaoService tipoSolicitacaoService) {
+                                       TipoSolicitacaoService tipoSolicitacaoService,
+                                       UsuarioRepository usuarioRepository) {
         this.ticketService = ticketService;
         this.tipoSolicitacaoService = tipoSolicitacaoService;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    private Usuario getUsuarioLogado(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Sessão expirada. Faça login novamente.");
+        }
+        return usuarioRepository.findByEmailIgnoreCase(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
     }
 
     @GetMapping
     public String listarMinhasSolicitacoes(@RequestParam(value = "status", required = false) StatusTicket status,
-                                           @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                           Authentication authentication,
                                            Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         model.addAttribute("solicitacoes", ticketService.listarPorColaborador(usuarioLogado.getId(), status));
         model.addAttribute("statusSelecionado", status);
         model.addAttribute("todosStatus", StatusTicket.values());
@@ -46,8 +60,9 @@ public class TicketColaboradorController {
 
     @GetMapping("/nova/{tipoId}")
     public String abrirSolicitacaoForm(@PathVariable("tipoId") Integer tipoId,
-                                       @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                       Authentication authentication,
                                        Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         TipoSolicitacao tipo = tipoSolicitacaoService.buscarPorId(tipoId);
         model.addAttribute("tipo", tipo);
         model.addAttribute("colaborador", usuarioLogado);
@@ -56,15 +71,15 @@ public class TicketColaboradorController {
 
     @PostMapping("/nova/{tipoId}")
     public String submeterSolicitacao(@PathVariable("tipoId") Integer tipoId,
-                                      @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                      Authentication authentication,
                                       HttpServletRequest request,
                                       Model model,
                                       RedirectAttributes redirectAttributes) {
 
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         Map<String, String> respostasTexto = new HashMap<>();
         Map<String, MultipartFile> arquivos = new HashMap<>();
 
-        // Extrai parâmetros normais
         Map<String, String[]> parameterMap = request.getParameterMap();
         for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
             if (entry.getKey().startsWith("campo_") && entry.getValue().length > 0) {
@@ -72,7 +87,6 @@ public class TicketColaboradorController {
             }
         }
 
-        // Extrai arquivos se multipart
         if (request instanceof MultipartHttpServletRequest multipartRequest) {
             Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
             for (Map.Entry<String, MultipartFile> entry : fileMap.entrySet()) {
@@ -98,27 +112,34 @@ public class TicketColaboradorController {
 
     @GetMapping("/{id}")
     public String verDetalhesSolicitacao(@PathVariable("id") Integer id,
-                                         @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                         Authentication authentication,
                                          Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         Ticket ticket = ticketService.buscarPorId(id);
         ticketService.validarAcessoTicket(ticket, usuarioLogado);
 
         model.addAttribute("ticket", ticket);
+        model.addAttribute("isFinalizado", ticket.isFinalizado());
         return "colaborador/solicitacoes/detalhes";
     }
 
     @PostMapping("/{id}/comentar")
     public String adicionarComentario(@PathVariable("id") Integer id,
                                       @RequestParam("conteudo") String conteudo,
-                                      @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                                      Authentication authentication,
                                       RedirectAttributes redirectAttributes) {
         if (conteudo == null || conteudo.isBlank()) {
             redirectAttributes.addFlashAttribute("mensagemErro", "O comentário não pode ser vazio.");
             return "redirect:/colaborador/solicitacoes/" + id;
         }
 
-        ticketService.adicionarComentario(id, usuarioLogado, conteudo);
-        redirectAttributes.addFlashAttribute("mensagemSucesso", "Comentário registrado com sucesso no histórico!");
+        try {
+            Usuario usuarioLogado = getUsuarioLogado(authentication);
+            ticketService.adicionarComentario(id, usuarioLogado, conteudo);
+            redirectAttributes.addFlashAttribute("mensagemSucesso", "Comentário registrado com sucesso no histórico!");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("mensagemErro", ex.getMessage());
+        }
         return "redirect:/colaborador/solicitacoes/" + id;
     }
 
@@ -126,7 +147,8 @@ public class TicketColaboradorController {
     @ResponseBody
     public ResponseEntity<Resource> baixarAnexo(@PathVariable("id") Integer id,
                                                 @PathVariable("respostaId") Integer respostaId,
-                                                @ModelAttribute("usuarioLogado") Usuario usuarioLogado) {
+                                                Authentication authentication) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
         Resource resource = ticketService.carregarAnexo(id, respostaId, usuarioLogado);
 
         return ResponseEntity.ok()

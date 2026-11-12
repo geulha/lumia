@@ -192,6 +192,12 @@ body {
     color: var(--text-main);
 }
 
+.user-profile-menu {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
 .user-dropdown-content {
     display: none;
     position: absolute;
@@ -207,7 +213,7 @@ body {
     z-index: 1000;
 }
 
-.user-profile-menu:hover .user-dropdown-content {
+.user-profile-menu.open .user-dropdown-content {
     display: block;
 }
 

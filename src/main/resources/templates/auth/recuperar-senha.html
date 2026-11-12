@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Lumia</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F0F4FD 0%, #E2E8F0 100%);
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(30, 27, 122, 0.1);
+            width: 100%;
+            max-width: 460px;
+            padding: 40px 36px;
+            text-align: center;
+        }
+        .login-brand-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            letter-spacing: -1px;
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+        .login-btn:hover {
+            background: #14115A;
+            box-shadow: 0 6px 18px rgba(30, 27, 122, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-brand-title">Lumia</div>
+        <p class="login-subtitle">Recuperação de Acesso</p>
+
+        <!-- Mensagens de Erro -->
+        <div th:if="${mensagemErro != null}" class="alert alert-danger" style="text-align: left; margin-bottom: 20px;">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span th:text="${mensagemErro}">Mensagem de erro</span>
+        </div>
+
+        <!-- Sucesso: Exibição da nova senha temporária -->
+        <div th:if="${sucesso}" style="text-align: left; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #166534; font-weight: 700; margin-bottom: 8px; font-size: 15px;">
+                <i class="bi bi-shield-check" style="font-size: 18px;"></i> Nova Senha Temporária Gerada!
+            </div>
+            <p style="font-size: 13px; color: #15803D; margin-bottom: 12px; line-height: 1.4;">
+                Uma nova senha de acesso foi gerada para o e-mail <strong th:text="${emailRecuperado}">email</strong>. Copie a senha abaixo para acessar:
+            </p>
+            <div style="background: white; border: 1px dashed #86EFAC; border-radius: 10px; padding: 12px; text-align: center; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--primary-dark); font-family: monospace;" th:text="${senhaGerada}">
+                Temp#8271
+            </div>
+            <p style="font-size: 12px; color: #64748B; margin-top: 12px; margin-bottom: 0;">
+                <i class="bi bi-info-circle"></i> No seu primeiro login com esta senha, o sistema solicitará imediatamente o cadastro de uma nova senha pessoal.
+            </p>
+            <a th:href="@{/login}" class="login-btn" style="display: block; text-decoration: none; text-align: center; margin-top: 16px;">
+                <i class="bi bi-box-arrow-in-right"></i> Ir para o Login
+            </a>
+        </div>
+
+        <!-- Formulário de Recuperação -->
+        <form th:unless="${sucesso}" th:action="@{/recuperar-senha}" method="post">
+            <p style="font-size: 13px; color: #4A5568; text-align: left; margin-bottom: 18px;">
+                Informe seu e-mail corporativo cadastrado para redefinir sua senha de acesso.
+            </p>
+
+            <div class="form-group" style="text-align: left;">
+                <label for="email" class="form-label">E-mail corporativo</label>
+                <input type="email" id="email" name="email" class="form-control" th:value="${emailPreenchido}" placeholder="seu.email@lumia.com.br" required autofocus>
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="bi bi-key-fill"></i> Gerar Nova Senha Temporária
+            </button>
+
+            <div style="margin-top: 20px;">
+                <a th:href="@{/login}" style="font-size: 13px; color: var(--primary-purple); text-decoration: none; font-weight: 600;">
+                    <i class="bi bi-arrow-left"></i> Voltar para a tela de login
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -39,7 +39,7 @@ public interface TipoSolicitacaoRepository extends JpaRepository<TipoSolicitacao
     @Query("SELECT t FROM TipoSolicitacao t WHERE t.ativo = true AND " +
            "(t.visivelParaPerfil IS NULL OR t.visivelParaPerfil = :perfil) AND " +
            "(t.visivelParaPosto IS NULL OR t.visivelParaPosto = '' OR LOWER(t.visivelParaPosto) = LOWER(:posto)) AND " +
-           "(LOWER(t.nome) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(t.descricao) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
+           "(LOWER(t.nome) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(t.descricao) LIKE LOWER(CONCAT('%', :termo, '%')) OR LOWER(t.categoria) LIKE LOWER(CONCAT('%', :termo, '%'))) " +
            "ORDER BY t.nome ASC")
     List<TipoSolicitacao> buscarPorTermo(@Param("perfil") Perfil perfil, 
                                         @Param("posto") String posto, 

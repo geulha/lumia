@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definir Nova Senha - Lumia</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #F0F4FD 0%, #E2E8F0 100%);
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(30, 27, 122, 0.1);
+            width: 100%;
+            max-width: 460px;
+            padding: 40px 36px;
+            text-align: center;
+        }
+        .login-brand-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            letter-spacing: -1px;
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+        .login-btn:hover {
+            background: #14115A;
+            box-shadow: 0 6px 18px rgba(30, 27, 122, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-brand-title">Lumia</div>
+        <p class="login-subtitle">Definição de Nova Senha Pessoal</p>
+
+        <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 14px; text-align: left; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #1E40AF; font-size: 13px; font-weight: 700; margin-bottom: 4px;">
+                <i class="bi bi-shield-lock-fill"></i> Primeiro Acesso Detectado
+            </div>
+            <p style="font-size: 12px; color: #1E3A8A; margin: 0; line-height: 1.4;">
+                Por motivos de segurança, você deve cadastrar uma nova senha pessoal definitiva antes de prosseguir para o portal.
+            </p>
+        </div>
+
+        <!-- Mensagens de Erro -->
+        <div th:if="${mensagemErro != null}" class="alert alert-danger" style="text-align: left; margin-bottom: 20px;">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span th:text="${mensagemErro}">Mensagem de erro</span>
+        </div>
+
+        <form th:action="@{/trocar-senha}" method="post">
+            <div class="form-group" style="text-align: left;">
+                <label for="senhaAtual" class="form-label">Senha Atual (Temporária)</label>
+                <input type="password" id="senhaAtual" name="senhaAtual" class="form-control" placeholder="Digite a senha usada no login" required autofocus>
+            </div>
+
+            <div class="form-group" style="text-align: left; margin-top: 14px;">
+                <label for="novaSenha" class="form-label">Nova Senha Pessoal (mínimo 6 caracteres)</label>
+                <input type="password" id="novaSenha" name="novaSenha" class="form-control" placeholder="••••••••" required minlength="6">
+            </div>
+
+            <div class="form-group" style="text-align: left; margin-top: 14px;">
+                <label for="confirmacaoSenha" class="form-label">Confirme a Nova Senha</label>
+                <input type="password" id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" placeholder="••••••••" required minlength="6">
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="bi bi-check2-circle"></i> Salvar Nova Senha e Continuar
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

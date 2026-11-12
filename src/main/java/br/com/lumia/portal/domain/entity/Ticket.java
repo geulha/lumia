@@ -199,4 +199,8 @@ public class Ticket {
     public void setAprovacoes(List<Aprovacao> aprovacoes) {
         this.aprovacoes = aprovacoes;
     }
+
+    public boolean isFinalizado() {
+        return status == StatusTicket.CONCLUIDO || status == StatusTicket.REPROVADO;
+    }
 }

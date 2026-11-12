@@ -14,15 +14,12 @@
     <header th:fragment="header" class="lumia-header">
         <a th:href="@{/}" class="lumia-brand">Lumia</a>
 
-        <!-- Barra de busca no cabeçalho (visível para RH ou telas internas) -->
-        <div class="lumia-header-center" th:if="${usuarioLogado != null and usuarioLogado.isRh()}">
-            <form th:action="@{/rh/tickets/abertos}" method="get" class="header-search-box">
-                <input type="text" name="termo" placeholder="Buscar chamados, colaboradores..." th:value="${param.termo}">
+        <!-- Barra de busca global no cabeçalho -->
+        <div class="lumia-header-center" th:if="${usuarioLogado != null}">
+            <form th:action="@{/busca}" method="get" class="header-search-box">
+                <input type="text" name="termo" placeholder="Buscar solicitações, artigos, assuntos..." th:value="${param.termo}">
                 <i class="bi bi-search search-icon" onclick="this.closest('form').submit()"></i>
             </form>
-        </div>
-        <div class="lumia-header-center" th:unless="${usuarioLogado != null and usuarioLogado.isRh()}">
-            <!-- Espaço flexível central para colaborador -->
         </div>
 
         <!-- Ações do Cabeçalho -->
@@ -106,6 +103,29 @@
         <div class="footer-right">
             empresalogo™
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const userMenu = document.querySelector('.user-profile-menu');
+                if (userMenu) {
+                    userMenu.addEventListener('click', function(e) {
+                        // Não fecha se clicar em um link ou botão de logout dentro do dropdown
+                        if (e.target.closest('a') || e.target.closest('button')) {
+                            return;
+                        }
+                        e.stopPropagation();
+                        userMenu.classList.toggle('open');
+                    });
+
+                    // Fecha o modal ao clicar fora
+                    document.addEventListener('click', function(e) {
+                        if (!userMenu.contains(e.target)) {
+                            userMenu.classList.remove('open');
+                        }
+                    });
+                }
+            });
+        </script>
     </footer>
 
 </body>

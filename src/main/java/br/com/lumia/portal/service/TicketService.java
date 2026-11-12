@@ -213,6 +213,10 @@ public class TicketService {
         Ticket ticket = buscarPorId(ticketId);
         validarAcessoTicket(ticket, autor);
 
+        if (ticket.isFinalizado()) {
+            throw new IllegalArgumentException("Este chamado encontra-se encerrado (" + ticket.getStatus().getDescricao() + "). Não é permitido adicionar novos comentários.");
+        }
+
         InteracaoTicket interacao = new InteracaoTicket();
         interacao.setTicket(ticket);
         interacao.setAutor(autor);

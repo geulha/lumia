@@ -110,32 +110,41 @@
                 <!-- Card de Ação: Mudança de Status do Ticket (UC06) -->
                 <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">
                     <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px;">
-                        Alterar Status / Encerrar Atendimento
+                        Status do Chamado
                     </h3>
-                    <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 18px;">
-                        Altere o andamento do ticket. A mudança é registrada automaticamente na linha do tempo visível ao colaborador.
-                    </p>
+                    <div th:if="${isFinalizado}" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; text-align: center;">
+                        <i class="bi bi-archive-fill" style="color: #718096; font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                        <span style="font-size: 13px; color: var(--text-muted);">
+                            Chamado encerrado com status 
+                            <strong th:text="${ticket.status.descricao}">Concluído</strong>. O histórico está preservado apenas para consulta.
+                        </span>
+                    </div>
+                    <div th:unless="${isFinalizado}">
+                        <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 18px;">
+                            Altere o andamento do ticket. A mudança é registrada automaticamente na linha do tempo visível ao colaborador.
+                        </p>
 
-                    <form th:action="@{/rh/tickets/{id}/status(id=${ticket.id})}" method="post">
-                        <div class="form-group">
-                            <label for="statusSelect" class="form-label">Novo Status do Chamado:</label>
-                            <select id="statusSelect" name="status" class="form-control" required>
-                                <option th:each="st : ${statusPossiveis}"
-                                        th:value="${st}"
-                                        th:text="${st.descricao}"
-                                        th:selected="${ticket.status == st}"></option>
-                            </select>
-                        </div>
+                        <form th:action="@{/rh/tickets/{id}/status(id=${ticket.id})}" method="post">
+                            <div class="form-group">
+                                <label for="statusSelect" class="form-label">Novo Status do Chamado:</label>
+                                <select id="statusSelect" name="status" class="form-control" required>
+                                    <option th:each="st : ${statusPossiveis}"
+                                            th:value="${st}"
+                                            th:text="${st.descricao}"
+                                            th:selected="${ticket.status == st}"></option>
+                                </select>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="justificativa" class="form-label">Motivo / Justificativa da Alteração:</label>
-                            <input type="text" id="justificativa" name="justificativa" class="form-control" placeholder="Ex.: Demanda atendida, aguardando envio de comprovante pelo colaborador...">
-                        </div>
+                            <div class="form-group">
+                                <label for="justificativa" class="form-label">Motivo / Justificativa da Alteração:</label>
+                                <input type="text" id="justificativa" name="justificativa" class="form-control" placeholder="Ex.: Demanda atendida, aguardando envio de comprovante pelo colaborador...">
+                            </div>
 
-                        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
-                            <i class="bi bi-arrow-repeat"></i> Atualizar Status
-                        </button>
-                    </form>
+                            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                                <i class="bi bi-arrow-repeat"></i> Atualizar Status
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
             </div>
@@ -175,7 +184,11 @@
                 </div>
 
                 <!-- Formulário de Devolutiva do RH ao Colaborador (RF05, UC06) -->
-                <div style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
+                <div th:if="${isFinalizado}" style="border-top: 1px solid #EDF2F7; padding-top: 18px; text-align: center; color: var(--text-muted); font-size: 13px; background: #F8FAFC; border-radius: 12px; padding: 14px;">
+                    <i class="bi bi-lock-fill" style="margin-right: 6px;"></i>
+                    Atendimento finalizado. Histórico arquivado em modo somente leitura.
+                </div>
+                <div th:unless="${isFinalizado}" style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
                     <form th:action="@{/rh/tickets/{id}/comentar(id=${ticket.id})}" method="post">
                         <label for="conteudoDevolutiva" class="form-label" style="font-size: 13px; font-weight: 700;">
                             Registrar Devolutiva Oficial ao Colaborador:

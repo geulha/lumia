@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Histórico de Tickets Encerrados - RH')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px;">
+            <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+            </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 class="section-title">Histórico de Chamados Encerrados</h2>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 0 0;">
+                        Visualização histórica de tickets com resolução concluída ou reprovada (somente leitura).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table-card">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Assunto / Formulário</th>
+                        <th>Solicitante</th>
+                        <th>Analista Responsável</th>
+                        <th>Status</th>
+                        <th>Encerrado em</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tk : ${tickets}">
+                        <td>
+                            <strong style="color: var(--primary-dark); font-size: 13px;" th:text="${tk.codigoFormatado}">REQ0006789</strong>
+                        </td>
+                        <td>
+                            <strong th:text="${tk.tipoSolicitacao.nome}" style="display: block; font-size: 13px;">Desligamento Voluntário</strong>
+                            <small style="color: var(--text-muted); font-size: 11px;" th:text="${tk.tipoSolicitacao.categoria}">Documentos</small>
+                        </td>
+                        <td th:text="${tk.colaborador.nome}">Helen Sturka</td>
+                        <td>
+                            <span th:if="${tk.analista != null}" th:text="${tk.analista.nome}">Zosia Hivemind</span>
+                            <span th:unless="${tk.analista != null}" style="color: var(--text-muted); font-style: italic;">Não atribuído</span>
+                        </td>
+                        <td>
+                            <span class="status-tag" th:classappend="${tk.status.classeCss}" th:text="${tk.status.descricao}">
+                                Concluído
+                            </span>
+                        </td>
+                        <td th:text="${tk.dataHoraFormatada}">01/06/2026 às 14:00</td>
+                        <td style="text-align: right;">
+                            <a th:href="@{/rh/tickets/{id}(id=${tk.id})}" class="btn-secondary" style="padding: 5px 14px; font-size: 12px; border-radius: 8px;">
+                                <i class="bi bi-eye"></i> Visualizar Histórico
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tickets)}">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="bi bi-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; color: #CBD5E0;"></i>
+                            Nenhum ticket encerrado encontrado no histórico.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

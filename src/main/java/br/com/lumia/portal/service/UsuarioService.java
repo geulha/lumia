@@ -64,6 +64,7 @@ public class UsuarioService {
         // RF01: Gerar senha aleatória temporária
         String senhaTemporaria = gerarSenhaAleatoria(10);
         usuario.setSenhaHash(passwordEncoder.encode(senhaTemporaria));
+        usuario.setPrimeiroAcesso(true);
 
         usuarioRepository.save(usuario);
         return senhaTemporaria;
@@ -123,8 +124,57 @@ public class UsuarioService {
         Usuario usuario = buscarPorId(id);
         String novaSenha = gerarSenhaAleatoria(10);
         usuario.setSenhaHash(passwordEncoder.encode(novaSenha));
+        usuario.setPrimeiroAcesso(true);
         usuarioRepository.save(usuario);
         return novaSenha;
+    }
+
+    @Transactional
+    public String recuperarSenha(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Informe o seu e-mail corporativo cadastrado.");
+        }
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Nenhum usuário cadastrado com o e-mail: " + email.trim()));
+
+        if (Boolean.TRUE.equals(usuario.getBloqueado())) {
+            throw new IllegalArgumentException("Este usuário encontra-se bloqueado pelo RH. Contate o suporte.");
+        }
+        if (Boolean.FALSE.equals(usuario.getAtivo())) {
+            throw new IllegalArgumentException("Esta conta está inativa. Contate o RH.");
+        }
+
+        String novaSenhaTemp = gerarSenhaAleatoria(10);
+        usuario.setSenhaHash(passwordEncoder.encode(novaSenhaTemp));
+        usuario.setPrimeiroAcesso(true);
+        usuarioRepository.save(usuario);
+        return novaSenhaTemp;
+    }
+
+    @Transactional
+    public void alterarSenha(Usuario usuario, String senhaAtual, String novaSenha, String confirmacao) {
+        if (usuario == null) {
+            throw new IllegalArgumentException("Usuário não identificado.");
+        }
+        if (senhaAtual == null || senhaAtual.isBlank()) {
+            throw new IllegalArgumentException("Informe a sua senha atual.");
+        }
+        if (!passwordEncoder.matches(senhaAtual, usuario.getSenhaHash())) {
+            throw new IllegalArgumentException("A senha atual informada está incorreta.");
+        }
+        if (novaSenha == null || novaSenha.length() < 6) {
+            throw new IllegalArgumentException("A nova senha deve possuir no mínimo 6 caracteres.");
+        }
+        if (!novaSenha.equals(confirmacao)) {
+            throw new IllegalArgumentException("A confirmação da nova senha não confere.");
+        }
+        if (passwordEncoder.matches(novaSenha, usuario.getSenhaHash())) {
+            throw new IllegalArgumentException("A nova senha não pode ser idêntica à senha atual.");
+        }
+
+        usuario.setSenhaHash(passwordEncoder.encode(novaSenha));
+        usuario.setPrimeiroAcesso(false);
+        usuarioRepository.save(usuario);
     }
 
     private String gerarSenhaAleatoria(int tamanho) {

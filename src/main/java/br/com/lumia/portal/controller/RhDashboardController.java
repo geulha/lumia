@@ -2,6 +2,7 @@ package br.com.lumia.portal.controller;
 
 import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.domain.enums.StatusTicket;
+import br.com.lumia.portal.service.AprovacaoService;
 import br.com.lumia.portal.service.TicketService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class RhDashboardController {
 
     private final TicketService ticketService;
+    private final AprovacaoService aprovacaoService;
 
-    public RhDashboardController(TicketService ticketService) {
+    public RhDashboardController(TicketService ticketService, AprovacaoService aprovacaoService) {
         this.ticketService = ticketService;
+        this.aprovacaoService = aprovacaoService;
     }
 
     @GetMapping
@@ -28,7 +31,11 @@ public class RhDashboardController {
         // 4 Indicadores na faixa de gradiente calculados dinamicamente do banco
         model.addAttribute("contagemAbertos", ticketService.contarPorStatus(StatusTicket.ABERTO));
         model.addAttribute("contagemAndamento", ticketService.contarPorStatus(StatusTicket.EM_ANDAMENTO));
-        model.addAttribute("contagemPendentes", ticketService.contarPorStatus(StatusTicket.PENDENTE));
+
+        // Pendências de aprovação específicas atribuídas ao usuário de RH logado
+        model.addAttribute("contagemPendentes", aprovacaoService.listarPendentes(usuarioLogado).size());
+
+        // Total histórico de chamados encerrados (concluídos e reprovados)
         model.addAttribute("contagemEncerrados", ticketService.contarEncerrados());
 
         // Grade "Meu Trabalho" atribuídos à analista de RH logada (fiel ao protótipo)
@@ -39,6 +46,9 @@ public class RhDashboardController {
 
     @GetMapping("/meu-trabalho")
     public String verMeuTrabalhoCompleto(@ModelAttribute("usuarioLogado") Usuario usuarioLogado, Model model) {
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
         model.addAttribute("tickets", ticketService.listarMeuTrabalho(usuarioLogado.getId()));
         return "rh/tickets/meu-trabalho";
     }

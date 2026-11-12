@@ -16,9 +16,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class RhArtigoController {
 
     private final ArtigoService artigoService;
+    private final br.com.lumia.portal.repository.UsuarioRepository usuarioRepository;
 
-    public RhArtigoController(ArtigoService artigoService) {
+    public RhArtigoController(ArtigoService artigoService,
+                              br.com.lumia.portal.repository.UsuarioRepository usuarioRepository) {
         this.artigoService = artigoService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @GetMapping
@@ -39,7 +42,7 @@ public class RhArtigoController {
     @PostMapping("/novo")
     public String criarArtigo(@Valid @ModelAttribute("artigoForm") ArtigoForm form,
                               BindingResult result,
-                              @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
+                              org.springframework.security.core.Authentication authentication,
                               Model model,
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
@@ -49,6 +52,8 @@ public class RhArtigoController {
         }
 
         try {
+            Usuario usuarioLogado = usuarioRepository.findByEmailIgnoreCase(authentication.getName())
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
             artigoService.criar(form, usuarioLogado);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Artigo cadastrado com sucesso na Base de Conhecimento!");
             return "redirect:/rh/gerenciar/base-conhecimento";
