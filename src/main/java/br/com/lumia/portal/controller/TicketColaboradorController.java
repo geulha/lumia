@@ -20,8 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.Normalizer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/colaborador/solicitacoes")
@@ -49,10 +52,25 @@ public class TicketColaboradorController {
 
     @GetMapping
     public String listarMinhasSolicitacoes(@RequestParam(value = "status", required = false) StatusTicket status,
+                                           @RequestParam(value = "termo", required = false) String termo,
                                            Authentication authentication,
                                            Model model) {
         Usuario usuarioLogado = getUsuarioLogado(authentication);
-        model.addAttribute("solicitacoes", ticketService.listarPorColaborador(usuarioLogado.getId(), status));
+        List<Ticket> solicitacoes = ticketService.listarPorColaborador(usuarioLogado.getId(), status);
+        if (termo != null && !termo.isBlank()) {
+            String termoNorm = Normalizer.normalize(termo.trim().toLowerCase(), Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "");
+            solicitacoes = solicitacoes.stream()
+                    .filter(t -> {
+                        String codigo = t.getCodigoFormatado().toLowerCase();
+                        String nomeServico = Normalizer.normalize(t.getTipoSolicitacao().getNome().toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+                        String categoria = Normalizer.normalize(t.getTipoSolicitacao().getCategoria().toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+                        return codigo.contains(termoNorm) || nomeServico.contains(termoNorm) || categoria.contains(termoNorm);
+                    })
+                    .collect(Collectors.toList());
+            model.addAttribute("termo", termo);
+        }
+        model.addAttribute("solicitacoes", solicitacoes);
         model.addAttribute("statusSelecionado", status);
         model.addAttribute("todosStatus", StatusTicket.values());
         return "colaborador/solicitacoes/lista";

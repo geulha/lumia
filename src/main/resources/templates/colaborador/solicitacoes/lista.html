@@ -21,21 +21,39 @@
             </a>
         </div>
 
+        <!-- Barra de Busca por REQ -->
+        <div style="background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #EDF2F7;">
+            <form th:action="@{/colaborador/solicitacoes}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                <input type="hidden" name="status" th:if="${statusSelecionado != null}" th:value="${statusSelecionado}">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar por código (ex.: REQ0083619 ou 83619) ou tipo de solicitação..." th:value="${termo}" style="flex: 1;">
+                <button type="submit" class="btn-primary" style="padding: 10px 20px;">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a th:if="${termo != null and !termo.isBlank()}" th:href="@{/colaborador/solicitacoes(status=${statusSelecionado})}" class="btn-secondary" style="padding: 10px 16px;">
+                    Limpar
+                </a>
+            </form>
+        </div>
+
         <!-- Filtros por Status (RF07, UC04) -->
         <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
-            <a th:href="@{/colaborador/solicitacoes}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${statusSelecionado == null ? 'btn-primary' : ''}">
+            <a th:href="@{/colaborador/solicitacoes(termo=${termo})}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${statusSelecionado == null ? 'btn-primary' : ''}">
                 Todos os Status
             </a>
-            <a th:each="st : ${todosStatus}" th:href="@{/colaborador/solicitacoes(status=${st})}"
+            <a th:each="st : ${todosStatus}" th:href="@{/colaborador/solicitacoes(status=${st}, termo=${termo})}"
                class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;"
                th:classappend="${statusSelecionado == st ? 'btn-primary' : ''}"
                th:text="${st.descricao}">Aberto</a>
         </div>
 
         <div th:if="${#lists.isEmpty(solicitacoes)}" style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
-            <i class="bi bi-folder2-open" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
-            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhuma solicitação encontrada</h4>
-            <p style="color: var(--text-muted); font-size: 13px;">Não há tickets cadastrados para o filtro selecionado.</p>
+            <i class="bi bi-search" th:if="${termo != null and !termo.isBlank()}" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
+            <i class="bi bi-folder2-open" th:unless="${termo != null and !termo.isBlank()}" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;" th:text="${termo != null and !termo.isBlank() ? 'Nenhuma solicitação encontrada para a busca' : 'Nenhuma solicitação encontrada'}">Nenhuma solicitação encontrada</h4>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;" th:text="${termo != null and !termo.isBlank() ? 'Tente pesquisar por outro código de solicitação (REQ...) ou assunto.' : 'Não há tickets cadastrados para o filtro selecionado.'}">Não há tickets cadastrados para o filtro selecionado.</p>
+            <a th:if="${termo != null and !termo.isBlank()}" th:href="@{/colaborador/solicitacoes(status=${statusSelecionado})}" class="btn-secondary" style="font-size: 13px; padding: 8px 18px;">
+                Limpar Busca
+            </a>
         </div>
 
         <div th:unless="${#lists.isEmpty(solicitacoes)}" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #EDF2F7;">

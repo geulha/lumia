@@ -52,6 +52,12 @@ public class TicketColaboradorIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("colaborador/solicitacoes/lista"))
                 .andExpect(model().attributeExists("solicitacoes"));
+
+        mockMvc.perform(get("/colaborador/solicitacoes").param("termo", "83619"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("colaborador/solicitacoes/lista"))
+                .andExpect(model().attributeExists("solicitacoes"))
+                .andExpect(model().attribute("termo", "83619"));
     }
 
     @Test
