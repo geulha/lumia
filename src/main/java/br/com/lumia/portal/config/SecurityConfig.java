@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .requestMatchers("/trocar-senha").authenticated()
                 .requestMatchers("/rh/**").hasRole("RH")
                 .requestMatchers("/colaborador/**").hasAnyRole("COLABORADOR", "RH")
-                .requestMatchers("/aprovacoes/**", "/artigos/**", "/tickets/**", "/busca/**").hasAnyRole("COLABORADOR", "RH")
+                .requestMatchers("/aprovacoes/**", "/artigos/**", "/tickets/**", "/busca/**", "/notificacoes/**").hasAnyRole("COLABORADOR", "RH")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

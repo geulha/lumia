@@ -28,19 +28,22 @@ public class TicketService {
     private final AprovacaoRepository aprovacaoRepository;
     private final TipoSolicitacaoService tipoSolicitacaoService;
     private final FileStorageService fileStorageService;
+    private final NotificacaoService notificacaoService;
 
     public TicketService(TicketRepository ticketRepository,
                          RespostaFormularioRepository respostaRepository,
                          InteracaoTicketRepository interacaoRepository,
                          AprovacaoRepository aprovacaoRepository,
                          TipoSolicitacaoService tipoSolicitacaoService,
-                         FileStorageService fileStorageService) {
+                         FileStorageService fileStorageService,
+                         NotificacaoService notificacaoService) {
         this.ticketRepository = ticketRepository;
         this.respostaRepository = respostaRepository;
         this.interacaoRepository = interacaoRepository;
         this.aprovacaoRepository = aprovacaoRepository;
         this.tipoSolicitacaoService = tipoSolicitacaoService;
         this.fileStorageService = fileStorageService;
+        this.notificacaoService = notificacaoService;
     }
 
     public Ticket buscarPorId(Integer id) {
@@ -253,7 +256,10 @@ public class TicketService {
         ticket.setAtualizado(LocalDateTime.now());
         ticketRepository.save(ticket);
 
-        return interacaoRepository.save(interacao);
+        InteracaoTicket salva = interacaoRepository.save(interacao);
+        notificacaoService.notificarAtualizacaoTicket(ticket, autor,
+                "Novo(a) " + (autor.isRh() ? "devolutiva" : "comentário") + " registrado(a) por " + autor.getNome() + ".");
+        return salva;
     }
 
     @Transactional
@@ -276,6 +282,9 @@ public class TicketService {
         interacao.setStatusPara(ticket.getStatus());
         interacao.setCriado(LocalDateTime.now());
         interacaoRepository.save(interacao);
+
+        notificacaoService.notificarAtualizacaoTicket(ticket, analista,
+                "O analista " + analista.getNome() + " assumiu o atendimento do seu chamado.");
     }
 
     @Transactional
@@ -298,6 +307,9 @@ public class TicketService {
         interacao.setStatusPara(novoStatus);
         interacao.setCriado(LocalDateTime.now());
         interacaoRepository.save(interacao);
+
+        notificacaoService.notificarAtualizacaoTicket(ticket, analista,
+                "Status do chamado alterado para '" + novoStatus.getDescricao() + "'.");
     }
 
     public Resource carregarAnexo(Integer ticketId, Integer respostaId, Usuario usuario) {

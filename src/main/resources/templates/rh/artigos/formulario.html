@@ -58,42 +58,134 @@
 
                     <!-- Escolha do Ícone -->
                     <div class="form-group">
-                        <label class="form-label">Ícone de Identificação do Artigo</label>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-top: 6px;">
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-file-earmark-text" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-file-earmark-text" style="font-size: 24px; color: var(--primary-purple);"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Geral / Doc</span>
+                        <label class="form-label">Ícone de Identificação do Artigo (Selecione um)</label>
+
+                        <style>
+                            .icon-choice-grid {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 12px;
+                                margin-top: 8px;
+                            }
+                            .icon-radio-label {
+                                cursor: pointer;
+                                margin: 0;
+                                user-select: none;
+                                position: relative;
+                            }
+                            .icon-radio-label input[type="radio"] {
+                                position: absolute;
+                                opacity: 0;
+                                width: 0;
+                                height: 0;
+                                margin: 0;
+                            }
+                            .icon-radio-label .icon-tile {
+                                width: 52px;
+                                height: 52px;
+                                border-radius: 12px;
+                                border: 2px solid #E2E8F0;
+                                background: #FFFFFF;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 24px;
+                                color: #64748B;
+                                transition: all 0.15s ease-in-out;
+                            }
+                            .icon-radio-label:hover .icon-tile {
+                                border-color: #CBD5E1;
+                                color: var(--primary-purple);
+                                transform: translateY(-2px);
+                            }
+                            .icon-radio-label input[type="radio"]:checked + .icon-tile {
+                                border-color: var(--primary-purple);
+                                background: #F3E8FF;
+                                color: var(--primary-purple);
+                                box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.25);
+                                transform: scale(1.05);
+                            }
+                        </style>
+
+                        <div class="icon-choice-grid">
+                            <!-- 1. Documento / Geral -->
+                            <label class="icon-radio-label" title="Documento / Geral">
+                                <input type="radio" th:field="*{icone}" value="bi-file-earmark-text">
+                                <div class="icon-tile">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
                             </label>
 
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-cash-coin" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-cash-coin" style="font-size: 24px; color: #16A34A;"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Pagamento</span>
+                            <!-- 2. Pagamento / Benefício -->
+                            <label class="icon-radio-label" title="Pagamento / Folha">
+                                <input type="radio" th:field="*{icone}" value="bi-cash-coin">
+                                <div class="icon-tile">
+                                    <i class="bi bi-cash-coin"></i>
+                                </div>
                             </label>
 
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-calendar-check" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-calendar-check" style="font-size: 24px; color: #2563EB;"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Férias / Ponto</span>
+                            <!-- 3. Férias / Calendário -->
+                            <label class="icon-radio-label" title="Férias / Calendário">
+                                <input type="radio" th:field="*{icone}" value="bi-calendar-check">
+                                <div class="icon-tile">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
                             </label>
 
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-heart-pulse" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-heart-pulse" style="font-size: 24px; color: #DC2626;"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Saúde / Benefício</span>
+                            <!-- 4. Saúde / Bem-estar -->
+                            <label class="icon-radio-label" title="Saúde / Bem-estar">
+                                <input type="radio" th:field="*{icone}" value="bi-heart-pulse">
+                                <div class="icon-tile">
+                                    <i class="bi bi-heart-pulse"></i>
+                                </div>
                             </label>
 
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-question-circle" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-question-circle" style="font-size: 24px; color: #D97706;"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Dúvidas / FAQ</span>
+                            <!-- 5. Dúvidas / FAQ -->
+                            <label class="icon-radio-label" title="Dúvidas / FAQ">
+                                <input type="radio" th:field="*{icone}" value="bi-question-circle">
+                                <div class="icon-tile">
+                                    <i class="bi bi-question-circle"></i>
+                                </div>
                             </label>
 
-                            <label style="border: 2px solid #E2E8F0; border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-purple)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='#E2E8F0'">
-                                <input type="radio" th:field="*{icone}" value="bi-shield-check" style="display: none;" onchange="document.querySelectorAll('.icon-choice').forEach(el => el.style.borderColor='#E2E8F0'); this.closest('label').style.borderColor='var(--primary-purple)';">
-                                <i class="bi bi-shield-check" style="font-size: 24px; color: #4F46E5;"></i>
-                                <span style="font-size: 11px; font-weight: 600; color: #4A5568;">Normas / Jurídico</span>
+                            <!-- 6. Importante / Alerta -->
+                            <label class="icon-radio-label" title="Importante / Atenção">
+                                <input type="radio" th:field="*{icone}" value="bi-exclamation-octagon">
+                                <div class="icon-tile">
+                                    <i class="bi bi-exclamation-octagon"></i>
+                                </div>
+                            </label>
+
+                            <!-- 7. Relógio / Prazos / Horários -->
+                            <label class="icon-radio-label" title="Relógio / Prazos / Ponto">
+                                <input type="radio" th:field="*{icone}" value="bi-clock-history">
+                                <div class="icon-tile">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                            </label>
+
+                            <!-- 8. Segurança / Privacidade -->
+                            <label class="icon-radio-label" title="Segurança / Proteção">
+                                <input type="radio" th:field="*{icone}" value="bi-shield-lock">
+                                <div class="icon-tile">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                            </label>
+
+                            <!-- 9. Trabalho / Carreira -->
+                            <label class="icon-radio-label" title="Trabalho / Carreira">
+                                <input type="radio" th:field="*{icone}" value="bi-briefcase">
+                                <div class="icon-tile">
+                                    <i class="bi bi-briefcase"></i>
+                                </div>
+                            </label>
+
+                            <!-- 10. Informativo / Comunicado -->
+                            <label class="icon-radio-label" title="Informativo / Comunicado">
+                                <input type="radio" th:field="*{icone}" value="bi-info-circle">
+                                <div class="icon-tile">
+                                    <i class="bi bi-info-circle"></i>
+                                </div>
                             </label>
                         </div>
                     </div>

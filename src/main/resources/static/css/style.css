@@ -217,6 +217,38 @@ body {
     display: block;
 }
 
+.notification-menu {
+    position: relative;
+    user-select: none;
+}
+
+.notification-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 320px;
+    background: white;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 10px;
+    border: 1px solid #E2E8F0;
+    z-index: 1000;
+}
+
+.notification-menu.open .notification-dropdown-content {
+    display: block;
+}
+
+.notification-item {
+    transition: background-color 0.15s ease;
+}
+
+.notification-item:hover {
+    background-color: #F1F5F9 !important;
+}
+
 .user-dropdown-content a {
     display: block;
     padding: 10px 16px;
@@ -344,6 +376,30 @@ body {
     font-size: 44px;
     font-weight: 700;
     line-height: 1;
+}
+
+/* Botões de Ação do RH (Abrir Solicitação e Minhas Solicitações) */
+.rh-action-pill-btn {
+    background: #A3D166;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    padding: 16px 24px;
+    border-radius: 35px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(163, 209, 102, 0.25);
+}
+
+.rh-action-pill-btn:hover {
+    background: #94C455;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(163, 209, 102, 0.35);
 }
 
 /* RH Faixa Gerenciar (verde suave #C5DDB0 / #E8F5E9) */

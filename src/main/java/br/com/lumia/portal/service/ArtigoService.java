@@ -16,9 +16,11 @@ import java.util.List;
 public class ArtigoService {
 
     private final ArtigoRepository artigoRepository;
+    private final NotificacaoService notificacaoService;
 
-    public ArtigoService(ArtigoRepository artigoRepository) {
+    public ArtigoService(ArtigoRepository artigoRepository, NotificacaoService notificacaoService) {
         this.artigoRepository = artigoRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     public List<Artigo> listarPublicados() {
@@ -121,7 +123,11 @@ public class ArtigoService {
         artigo.setCriado(LocalDateTime.now());
         artigo.setAtualizado(LocalDateTime.now());
 
-        return artigoRepository.save(artigo);
+        Artigo salvo = artigoRepository.save(artigo);
+        if (Boolean.TRUE.equals(salvo.getPublicado())) {
+            notificacaoService.notificarNovoArtigo(salvo);
+        }
+        return salvo;
     }
 
     @Transactional
@@ -145,6 +151,9 @@ public class ArtigoService {
         artigo.setPublicado(!Boolean.TRUE.equals(artigo.getPublicado()));
         artigo.setAtualizado(LocalDateTime.now());
         artigoRepository.save(artigo);
+        if (Boolean.TRUE.equals(artigo.getPublicado())) {
+            notificacaoService.notificarNovoArtigo(artigo);
+        }
         return artigo.getPublicado();
     }
 

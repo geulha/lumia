@@ -36,6 +36,16 @@
             </div>
         </div>
 
+        <!-- Atalhos Rápidos do RH: Abrir Solicitação e Minhas Solicitações (Lado a Lado) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0 25px 0;">
+            <a th:href="@{/colaborador/formularios}" class="rh-action-pill-btn">
+                Abrir Solicitação
+            </a>
+            <a th:href="@{/colaborador/solicitacoes}" class="rh-action-pill-btn">
+                Minhas Solicitações
+            </a>
+        </div>
+
         <!-- Faixa Gerenciar (Fundo Verde-Claro, 3 Atalhos - Fiel ao Protótipo) -->
         <div class="gerenciar-strip">
             <div class="gerenciar-strip-title">Gerenciar</div>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Minhas Notificações')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <a th:href="@{/}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <i class="bi bi-arrow-left"></i> Voltar ao Painel
+                </a>
+                <h2 class="section-title">Minhas Notificações</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 0 0;">
+                    Acompanhe todas as atualizações de chamados, novos serviços disponíveis e artigos publicados.
+                </p>
+            </div>
+
+            <form th:action="@{/notificacoes/ler-todas}" method="post" style="margin: 0;" th:if="${notificacoesNaoLidasCount > 0}">
+                <button type="submit" class="btn-secondary" style="padding: 8px 16px; font-size: 13px; border-radius: 10px;">
+                    <i class="bi bi-check2-all"></i> Marcar todas como lidas
+                </button>
+            </form>
+        </div>
+
+        <div class="data-table-card" style="padding: 0; overflow: hidden;">
+            <div th:if="${#lists.isEmpty(notificacoes)}" style="padding: 60px 20px; text-align: center; color: var(--text-muted);">
+                <i class="bi bi-bell-slash" style="font-size: 40px; display: block; margin-bottom: 12px; color: #CBD5E0;"></i>
+                <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Nenhuma notificação encontrada</h4>
+                <p style="font-size: 13px;">Você será notificado aqui sempre que houver novidades sobre chamados, formulários ou artigos.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(notificacoes)}">
+                <form th:each="n : ${notificacoes}" th:action="@{/notificacoes/{id}/ler(id=${n.id})}" method="post" style="margin: 0;">
+                    <button type="submit" style="width: 100%; border: none; text-align: left; padding: 18px 24px; border-bottom: 1px solid #EDF2F7; cursor: pointer; display: flex; gap: 16px; align-items: flex-start; transition: background 0.15s;"
+                            th:styleappend="${!n.lida} ? 'background: #F8FAFC;' : 'background: white; opacity: 0.85;'">
+                        <div style="width: 42px; height: 42px; border-radius: 12px; background: #EEF2FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi" th:classappend="${n.tipo.icone}" th:style="'font-size: 20px; color: ' + ${n.tipo.cor} + ';'"></i>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 15px; color: #1E293B;" th:text="${n.titulo}">Título da Notificação</strong>
+                                <span style="font-size: 12px; color: #94A3B8;" th:text="${n.tempoRelativo}">há 10 minutos</span>
+                            </div>
+                            <p style="font-size: 13px; color: #475569; margin: 0 0 8px 0; line-height: 1.4;" th:text="${n.mensagem}">
+                                Detalhes e descrição completa da notificação...
+                            </p>
+                            <span class="status-tag" style="font-size: 11px; padding: 2px 8px; background: #F1F5F9; color: #475569;" th:text="${n.tipo.descricao}">
+                                Tipo
+                            </span>
+                        </div>
+                        <div th:if="${!n.lida}" style="align-self: center; margin-left: 10px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #3B82F6; display: inline-block;"></span>
+                        </div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

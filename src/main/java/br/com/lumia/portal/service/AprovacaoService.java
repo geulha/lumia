@@ -24,13 +24,16 @@ public class AprovacaoService {
     private final AprovacaoRepository aprovacaoRepository;
     private final TicketRepository ticketRepository;
     private final InteracaoTicketRepository interacaoRepository;
+    private final NotificacaoService notificacaoService;
 
     public AprovacaoService(AprovacaoRepository aprovacaoRepository,
                             TicketRepository ticketRepository,
-                            InteracaoTicketRepository interacaoRepository) {
+                            InteracaoTicketRepository interacaoRepository,
+                            NotificacaoService notificacaoService) {
         this.aprovacaoRepository = aprovacaoRepository;
         this.ticketRepository = ticketRepository;
         this.interacaoRepository = interacaoRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     public List<Aprovacao> listarPendentes(Usuario gestor) {
@@ -96,5 +99,10 @@ public class AprovacaoService {
 
         ticketRepository.save(ticket);
         interacaoRepository.save(interacao);
+
+        notificacaoService.notificarAtualizacaoTicket(ticket, gestor,
+                decisao == DecisaoAprovacao.APROVADO
+                        ? "Solicitação APROVADA pelo gestor " + gestor.getNome() + " e encaminhada ao RH."
+                        : "Solicitação REPROVADA pelo gestor " + gestor.getNome() + ".");
     }
 }

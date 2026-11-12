@@ -1,13 +1,16 @@
 package br.com.lumia.portal.controller;
 
+import br.com.lumia.portal.domain.entity.Notificacao;
 import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.domain.enums.DecisaoAprovacao;
 import br.com.lumia.portal.repository.AprovacaoRepository;
 import br.com.lumia.portal.repository.UsuarioRepository;
+import br.com.lumia.portal.service.NotificacaoService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.util.List;
 import java.util.Optional;
 
 @ControllerAdvice
@@ -15,10 +18,14 @@ public class GlobalControllerAdvice {
 
     private final UsuarioRepository usuarioRepository;
     private final AprovacaoRepository aprovacaoRepository;
+    private final NotificacaoService notificacaoService;
 
-    public GlobalControllerAdvice(UsuarioRepository usuarioRepository, AprovacaoRepository aprovacaoRepository) {
+    public GlobalControllerAdvice(UsuarioRepository usuarioRepository,
+                                  AprovacaoRepository aprovacaoRepository,
+                                  NotificacaoService notificacaoService) {
         this.usuarioRepository = usuarioRepository;
         this.aprovacaoRepository = aprovacaoRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     @ModelAttribute("usuarioLogado")
@@ -41,5 +48,23 @@ public class GlobalControllerAdvice {
             return 0;
         }
         return aprovacaoRepository.countByAprovadorIdAndDecisao(usuarioOpt.get().getId(), DecisaoAprovacao.PENDENTE);
+    }
+
+    @ModelAttribute("notificacoesNaoLidasCount")
+    public long getNotificacoesNaoLidasCount(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return 0;
+        }
+        Usuario usuario = getUsuarioLogado(authentication);
+        return notificacaoService.contarNaoLidas(usuario);
+    }
+
+    @ModelAttribute("notificacoesRecentes")
+    public List<Notificacao> getNotificacoesRecentes(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return List.of();
+        }
+        Usuario usuario = getUsuarioLogado(authentication);
+        return notificacaoService.listarRecentes(usuario);
     }
 }

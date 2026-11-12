@@ -22,11 +22,14 @@ public class TipoSolicitacaoService {
 
     private final TipoSolicitacaoRepository tipoSolicitacaoRepository;
     private final CampoFormularioRepository campoFormularioRepository;
+    private final NotificacaoService notificacaoService;
 
     public TipoSolicitacaoService(TipoSolicitacaoRepository tipoSolicitacaoRepository,
-                                  CampoFormularioRepository campoFormularioRepository) {
+                                  CampoFormularioRepository campoFormularioRepository,
+                                  NotificacaoService notificacaoService) {
         this.tipoSolicitacaoRepository = tipoSolicitacaoRepository;
         this.campoFormularioRepository = campoFormularioRepository;
+        this.notificacaoService = notificacaoService;
     }
 
     public List<TipoSolicitacao> listarTodos() {
@@ -106,7 +109,11 @@ public class TipoSolicitacaoService {
         tipo.setCriadoPor(criadoPor);
         tipo.setCriado(LocalDateTime.now());
 
-        return tipoSolicitacaoRepository.save(tipo);
+        TipoSolicitacao salvo = tipoSolicitacaoRepository.save(tipo);
+        if (Boolean.TRUE.equals(salvo.getAtivo())) {
+            notificacaoService.notificarNovoFormulario(salvo);
+        }
+        return salvo;
     }
 
     @Transactional
@@ -128,6 +135,9 @@ public class TipoSolicitacaoService {
         TipoSolicitacao tipo = buscarPorId(id);
         tipo.setAtivo(!Boolean.TRUE.equals(tipo.getAtivo()));
         tipoSolicitacaoRepository.save(tipo);
+        if (Boolean.TRUE.equals(tipo.getAtivo())) {
+            notificacaoService.notificarNovoFormulario(tipo);
+        }
         return tipo.getAtivo();
     }
 

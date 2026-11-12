@@ -107,4 +107,13 @@ public class NovosAjustesIntegrationTest {
                 .andExpect(model().attributeExists("formularios"))
                 .andExpect(model().attributeExists("artigos"));
     }
+
+    @Test
+    @WithMockUser(username = "carol.sturka@lumia.com.br", roles = {"COLABORADOR"})
+    void testNotificacoesFluxo() throws Exception {
+        mockMvc.perform(get("/notificacoes"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("notificacoes/lista"))
+                .andExpect(model().attributeExists("notificacoes"));
+    }
 }
