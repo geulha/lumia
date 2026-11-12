@@ -16,10 +16,23 @@
                 <div>
                     <h2 class="section-title">Histórico de Chamados Encerrados</h2>
                     <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 0 0;">
-                        Visualização histórica de tickets com resolução concluída ou reprovada (somente leitura).
+                        Visualização histórica de todos os chamados com resolução concluída ou reprovada no sistema (somente leitura).
                     </p>
                 </div>
             </div>
+        </div>
+
+        <!-- Barra de Busca -->
+        <div style="background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #EDF2F7;">
+            <form th:action="@{/rh/tickets/encerrados}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar por código (REQ...), colaborador, tipo de chamado ou analista..." th:value="${termo}" style="flex: 1;">
+                <button type="submit" class="btn-primary" style="padding: 10px 20px;">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a th:if="${termo != null and !termo.isBlank()}" th:href="@{/rh/tickets/encerrados}" class="btn-secondary" style="padding: 10px 16px;">
+                    Limpar
+                </a>
+            </form>
         </div>
 
         <div class="data-table-card">
@@ -46,8 +59,15 @@
                         </td>
                         <td th:text="${tk.colaborador.nome}">Helen Sturka</td>
                         <td>
-                            <span th:if="${tk.analista != null}" th:text="${tk.analista.nome}">Zosia Hivemind</span>
-                            <span th:unless="${tk.analista != null}" style="color: var(--text-muted); font-style: italic;">Não atribuído</span>
+                            <span th:if="${tk.analista != null and usuarioLogado != null and tk.analista.id == usuarioLogado.id}" style="color: #2E7D32; font-weight: 600; font-size: 12px;">
+                                <i class="bi bi-person-check-fill"></i> Atribuído a você
+                            </span>
+                            <span th:if="${tk.analista != null and (usuarioLogado == null or tk.analista.id != usuarioLogado.id)}" style="font-size: 12px; color: var(--primary-dark); font-weight: 500;" th:text="${tk.analista.nome}">
+                                Analista
+                            </span>
+                            <span th:if="${tk.analista == null}" style="color: var(--text-muted); font-size: 12px; font-style: italic;">
+                                Não atribuído
+                            </span>
                         </td>
                         <td>
                             <span class="status-tag" th:classappend="${tk.status.classeCss}" th:text="${tk.status.descricao}">

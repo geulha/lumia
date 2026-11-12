@@ -9,27 +9,27 @@
 
     <main class="lumia-main-content">
 
-        <!-- 4 Indicadores em Faixa de Gradiente (Fiel ao Protótipo da Visão do Profissional de RH) -->
+        <!-- 4 Indicadores em Faixa de Gradiente (Fiel ao Protótipo da Visão do Profissional de RH - Globais) -->
         <div class="indicators-grid">
-            <div class="indicator-col">
+            <div class="indicator-col" style="cursor: pointer;" onclick="window.location.href='/rh/tickets/abertos'">
                 <div class="indicator-title">Tickets em Aberto</div>
                 <div class="indicator-number" th:text="${contagemAbertos}">24</div>
                 <a th:href="@{/rh/tickets/abertos}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Ver Fila</a>
             </div>
 
-            <div class="indicator-col">
+            <div class="indicator-col" style="cursor: pointer;" onclick="window.location.href='/rh/tickets/em-andamento'">
                 <div class="indicator-title">Tickets em Andamento</div>
                 <div class="indicator-number" th:text="${contagemAndamento}">51</div>
-                <a th:href="@{/rh/meu-trabalho}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Em Tratamento</a>
+                <a th:href="@{/rh/tickets/em-andamento}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Em Tratamento</a>
             </div>
 
-            <div class="indicator-col">
+            <div class="indicator-col" style="cursor: pointer;" onclick="window.location.href='/rh/tickets/pendentes'">
                 <div class="indicator-title">Tickets Pendentes</div>
                 <div class="indicator-number" th:text="${contagemPendentes}">0</div>
-                <a th:href="@{/rh/tickets/pendentes}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Aguardando Aprovação</a>
+                <a th:href="@{/rh/tickets/pendentes}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Aprovações</a>
             </div>
 
-            <div class="indicator-col">
+            <div class="indicator-col" style="cursor: pointer;" onclick="window.location.href='/rh/tickets/encerrados'">
                 <div class="indicator-title">Tickets Encerrados</div>
                 <div class="indicator-number" th:text="${contagemEncerrados}">607</div>
                 <a th:href="@{/rh/tickets/encerrados}" style="color: rgba(255,255,255,0.85); font-size: 11px; text-decoration: underline; margin-top: 4px; display: inline-block;">Concluídos / Reprovados</a>

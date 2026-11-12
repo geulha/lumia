@@ -109,11 +109,28 @@ public class NovosAjustesIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "carol.sturka@lumia.com.br", roles = {"COLABORADOR"})
+    @WithMockUser(username = "zosia.hivemind@lumia.com.br", roles = {"RH"})
     void testNotificacoesFluxo() throws Exception {
         mockMvc.perform(get("/notificacoes"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("notificacoes/lista"))
                 .andExpect(model().attributeExists("notificacoes"));
+    }
+
+    @Test
+    @WithMockUser(username = "zosia.hivemind@lumia.com.br", roles = {"RH"})
+    void testFilaEmAndamentoEFiltragemMeuTrabalho() throws Exception {
+        // Acesso à fila global de em andamento
+        mockMvc.perform(get("/rh/tickets/em-andamento"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("rh/tickets/em-andamento"))
+                .andExpect(model().attributeExists("tickets"));
+
+        // Acesso a Meu Trabalho com filtro de status
+        mockMvc.perform(get("/rh/meu-trabalho").param("status", "EM_ANDAMENTO"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("rh/tickets/meu-trabalho"))
+                .andExpect(model().attributeExists("tickets"))
+                .andExpect(model().attribute("statusSelecionado", br.com.lumia.portal.domain.enums.StatusTicket.EM_ANDAMENTO));
     }
 }

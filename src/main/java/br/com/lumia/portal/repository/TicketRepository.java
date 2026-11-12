@@ -41,8 +41,17 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     @Query("SELECT t FROM Ticket t WHERE t.analista.id = :analistaId ORDER BY t.criado DESC")
     List<Ticket> findMeuTrabalho(@Param("analistaId") Integer analistaId);
 
+    @Query("SELECT t FROM Ticket t WHERE t.analista.id = :analistaId AND t.status = :status ORDER BY t.criado DESC")
+    List<Ticket> findMeuTrabalhoPorStatus(@Param("analistaId") Integer analistaId, @Param("status") StatusTicket status);
+
     @Query("SELECT t FROM Ticket t WHERE t.status = br.com.lumia.portal.domain.enums.StatusTicket.ABERTO ORDER BY t.criado ASC")
     List<Ticket> findTicketsEmAberto();
+
+    @Query("SELECT t FROM Ticket t WHERE t.status = br.com.lumia.portal.domain.enums.StatusTicket.EM_ANDAMENTO ORDER BY t.criado DESC")
+    List<Ticket> findTicketsEmAndamento();
+
+    @Query("SELECT t FROM Ticket t WHERE t.status = br.com.lumia.portal.domain.enums.StatusTicket.PENDENTE ORDER BY t.criado DESC")
+    List<Ticket> findTicketsPendentes();
 
     @Query("SELECT t FROM Ticket t WHERE t.status IN (br.com.lumia.portal.domain.enums.StatusTicket.CONCLUIDO, br.com.lumia.portal.domain.enums.StatusTicket.REPROVADO) ORDER BY t.atualizado DESC")
     List<Ticket> findTicketsEncerrados();

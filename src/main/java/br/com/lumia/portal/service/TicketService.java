@@ -70,8 +70,23 @@ public class TicketService {
         return ticketRepository.findMeuTrabalho(analistaId);
     }
 
+    public List<Ticket> listarMeuTrabalho(Integer analistaId, StatusTicket status) {
+        if (status == null) {
+            return ticketRepository.findMeuTrabalho(analistaId);
+        }
+        return ticketRepository.findMeuTrabalhoPorStatus(analistaId, status);
+    }
+
     public List<Ticket> listarAbertos() {
         return ticketRepository.findTicketsEmAberto();
+    }
+
+    public List<Ticket> listarEmAndamento() {
+        return ticketRepository.findTicketsEmAndamento();
+    }
+
+    public List<Ticket> listarPendentes() {
+        return ticketRepository.findTicketsPendentes();
     }
 
     public List<Ticket> listarEncerrados() {

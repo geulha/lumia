@@ -47,7 +47,8 @@ public class RhTicketController {
             abertos = abertos.stream()
                     .filter(t -> t.getCodigoFormatado().toLowerCase().contains(termoLower) ||
                             t.getColaborador().getNome().toLowerCase().contains(termoLower) ||
-                            t.getTipoSolicitacao().getNome().toLowerCase().contains(termoLower))
+                            t.getTipoSolicitacao().getNome().toLowerCase().contains(termoLower) ||
+                            (t.getAnalista() != null && t.getAnalista().getNome().toLowerCase().contains(termoLower)))
                     .collect(Collectors.toList());
             model.addAttribute("termo", termo);
         }
@@ -56,18 +57,61 @@ public class RhTicketController {
         return "rh/tickets/abertos";
     }
 
-    @GetMapping("/encerrados")
-    public String listarTicketsEncerrados(Authentication authentication, Model model) {
-        Usuario usuarioLogado = getUsuarioLogado(authentication);
-        model.addAttribute("tickets", ticketService.listarEncerradosPorAnalista(usuarioLogado.getId()));
-        return "rh/tickets/encerrados";
+    @GetMapping("/em-andamento")
+    public String listarTicketsEmAndamento(@RequestParam(value = "termo", required = false) String termo,
+                                          Model model) {
+        List<Ticket> emAndamento = ticketService.listarEmAndamento();
+        if (termo != null && !termo.isBlank()) {
+            String termoLower = termo.trim().toLowerCase();
+            emAndamento = emAndamento.stream()
+                    .filter(t -> t.getCodigoFormatado().toLowerCase().contains(termoLower) ||
+                            t.getColaborador().getNome().toLowerCase().contains(termoLower) ||
+                            t.getTipoSolicitacao().getNome().toLowerCase().contains(termoLower) ||
+                            (t.getAnalista() != null && t.getAnalista().getNome().toLowerCase().contains(termoLower)))
+                    .collect(Collectors.toList());
+            model.addAttribute("termo", termo);
+        }
+
+        model.addAttribute("tickets", emAndamento);
+        return "rh/tickets/em-andamento";
     }
 
     @GetMapping("/pendentes")
-    public String listarTicketsPendentes(Authentication authentication, Model model) {
-        Usuario usuarioLogado = getUsuarioLogado(authentication);
-        model.addAttribute("tickets", ticketService.listarPendentesPorAnalista(usuarioLogado.getId()));
+    public String listarTicketsPendentes(@RequestParam(value = "termo", required = false) String termo,
+                                         Model model) {
+        List<Ticket> pendentes = ticketService.listarPendentes();
+        if (termo != null && !termo.isBlank()) {
+            String termoLower = termo.trim().toLowerCase();
+            pendentes = pendentes.stream()
+                    .filter(t -> t.getCodigoFormatado().toLowerCase().contains(termoLower) ||
+                            t.getColaborador().getNome().toLowerCase().contains(termoLower) ||
+                            t.getTipoSolicitacao().getNome().toLowerCase().contains(termoLower) ||
+                            (t.getAnalista() != null && t.getAnalista().getNome().toLowerCase().contains(termoLower)))
+                    .collect(Collectors.toList());
+            model.addAttribute("termo", termo);
+        }
+
+        model.addAttribute("tickets", pendentes);
         return "rh/tickets/pendentes";
+    }
+
+    @GetMapping("/encerrados")
+    public String listarTicketsEncerrados(@RequestParam(value = "termo", required = false) String termo,
+                                          Model model) {
+        List<Ticket> encerrados = ticketService.listarEncerrados();
+        if (termo != null && !termo.isBlank()) {
+            String termoLower = termo.trim().toLowerCase();
+            encerrados = encerrados.stream()
+                    .filter(t -> t.getCodigoFormatado().toLowerCase().contains(termoLower) ||
+                            t.getColaborador().getNome().toLowerCase().contains(termoLower) ||
+                            t.getTipoSolicitacao().getNome().toLowerCase().contains(termoLower) ||
+                            (t.getAnalista() != null && t.getAnalista().getNome().toLowerCase().contains(termoLower)))
+                    .collect(Collectors.toList());
+            model.addAttribute("termo", termo);
+        }
+
+        model.addAttribute("tickets", encerrados);
+        return "rh/tickets/encerrados";
     }
 
     @GetMapping("/{id}")
@@ -109,6 +153,11 @@ public class RhTicketController {
 
         try {
             Usuario usuarioLogado = getUsuarioLogado(authentication);
+            Ticket ticket = ticketService.buscarPorId(id);
+            if (ticket.getAnalista() != null && !ticket.getAnalista().getId().equals(usuarioLogado.getId())) {
+                redirectAttributes.addFlashAttribute("mensagemErro", "Apenas o analista responsável (" + ticket.getAnalista().getNome() + ") pode registrar devolutivas neste chamado.");
+                return "redirect:/rh/tickets/" + id;
+            }
             ticketService.adicionarComentario(id, usuarioLogado, conteudo);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Devolutiva registrada com sucesso! O colaborador receberá esta atualização.");
         } catch (Exception ex) {
@@ -125,6 +174,11 @@ public class RhTicketController {
                                   RedirectAttributes redirectAttributes) {
         try {
             Usuario usuarioLogado = getUsuarioLogado(authentication);
+            Ticket ticket = ticketService.buscarPorId(id);
+            if (ticket.getAnalista() != null && !ticket.getAnalista().getId().equals(usuarioLogado.getId())) {
+                redirectAttributes.addFlashAttribute("mensagemErro", "Apenas o analista responsável (" + ticket.getAnalista().getNome() + ") pode atualizar o status deste chamado.");
+                return "redirect:/rh/tickets/" + id;
+            }
             ticketService.alterarStatus(id, usuarioLogado, novoStatus, justificativa);
             redirectAttributes.addFlashAttribute("mensagemSucesso", "Status do ticket alterado para '" + novoStatus.getDescricao() + "' com sucesso!");
         } catch (Exception ex) {

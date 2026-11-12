@@ -9,8 +9,8 @@
 
     <main class="lumia-main-content">
         <div style="margin-bottom: 25px;">
-            <a th:href="@{/rh/meu-trabalho}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <i class="bi bi-arrow-left"></i> Voltar ao Meu Trabalho
+            <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
             </a>
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                 <div>
@@ -22,13 +22,24 @@
                         Aberto
                     </span>
 
-                    <!-- Botão Atribuir a Mim se não for o analista atual (UC06) -->
-                    <form th:unless="${isAnalistaResponsavel}" th:action="@{/rh/tickets/{id}/atribuir(id=${ticket.id})}" method="post" style="display: inline;">
-                        <button type="submit" class="btn-primary" style="padding: 8px 18px; font-size: 13px;">
+                    <!-- Botão Atribuir a Mim se ainda não tiver analista atribuído e não finalizado -->
+                    <form th:if="${ticket.analista == null and !isFinalizado}" th:action="@{/rh/tickets/{id}/atribuir(id=${ticket.id})}" method="post" style="display: inline; margin: 0;">
+                        <button type="submit" class="btn-primary" style="padding: 8px 18px; font-size: 13px; background: #3B82F6;">
                             <i class="bi bi-person-check-fill"></i> Atribuir a Mim
                         </button>
                     </form>
                 </div>
+            </div>
+        </div>
+
+        <!-- Alerta de Modo Somente Leitura quando atribuído a outro analista -->
+        <div th:if="${ticket.analista != null and !isAnalistaResponsavel}" style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 14px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <i class="bi bi-eye-fill" style="font-size: 22px; color: #D97706;"></i>
+            <div>
+                <strong style="color: #92400E; font-size: 14px;">Modo Somente Leitura</strong>
+                <p style="color: #B45309; font-size: 12px; margin: 2px 0 0 0;">
+                    Este chamado está atribuído ao analista <strong th:text="${ticket.analista.nome}">Nome</strong>. Apenas o analista responsável pode atualizar o status ou registrar devolutivas.
+                </p>
             </div>
         </div>
 
@@ -112,6 +123,7 @@
                     <h3 style="font-size: 17px; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px;">
                         Status do Chamado
                     </h3>
+                    <!-- Se o chamado estiver encerrado -->
                     <div th:if="${isFinalizado}" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; text-align: center;">
                         <i class="bi bi-archive-fill" style="color: #718096; font-size: 20px; display: block; margin-bottom: 6px;"></i>
                         <span style="font-size: 13px; color: var(--text-muted);">
@@ -119,7 +131,25 @@
                             <strong th:text="${ticket.status.descricao}">Concluído</strong>. O histórico está preservado apenas para consulta.
                         </span>
                     </div>
-                    <div th:unless="${isFinalizado}">
+
+                    <!-- Se o chamado não estiver encerrado mas atribuído a outro analista: Somente leitura -->
+                    <div th:if="${!isFinalizado and ticket.analista != null and !isAnalistaResponsavel}" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; text-align: center;">
+                        <i class="bi bi-lock-fill" style="color: #718096; font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                        <span style="font-size: 13px; color: var(--text-muted);">
+                            Apenas o analista responsável (<strong th:text="${ticket.analista.nome}">Nome</strong>) pode atualizar o status deste chamado.
+                        </span>
+                    </div>
+
+                    <!-- Se o chamado não tiver analista atribuído: Aviso para atribuir -->
+                    <div th:if="${!isFinalizado and ticket.analista == null}" style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 14px; text-align: center;">
+                        <i class="bi bi-person-plus-fill" style="color: #3B82F6; font-size: 20px; display: block; margin-bottom: 6px;"></i>
+                        <span style="font-size: 13px; color: #1E40AF;">
+                            Atribua o chamado a si mesmo para poder alterar o status.
+                        </span>
+                    </div>
+
+                    <!-- Se o analista for o responsável pelo atendimento -->
+                    <div th:if="${!isFinalizado and isAnalistaResponsavel}">
                         <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 18px;">
                             Altere o andamento do ticket. A mudança é registrada automaticamente na linha do tempo visível ao colaborador.
                         </p>
@@ -188,7 +218,15 @@
                     <i class="bi bi-lock-fill" style="margin-right: 6px;"></i>
                     Atendimento finalizado. Histórico arquivado em modo somente leitura.
                 </div>
-                <div th:unless="${isFinalizado}" style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
+                <div th:if="${!isFinalizado and ticket.analista != null and !isAnalistaResponsavel}" style="border-top: 1px solid #EDF2F7; padding-top: 18px; text-align: center; color: var(--text-muted); font-size: 13px; background: #F8FAFC; border-radius: 12px; padding: 14px;">
+                    <i class="bi bi-lock-fill" style="margin-right: 6px;"></i>
+                    Apenas o analista responsável (<strong th:text="${ticket.analista.nome}">Nome</strong>) pode registrar devolutivas oficiais neste chamado.
+                </div>
+                <div th:if="${!isFinalizado and ticket.analista == null}" style="border-top: 1px solid #EDF2F7; padding-top: 18px; text-align: center; color: #1E40AF; font-size: 13px; background: #EFF6FF; border-radius: 12px; padding: 14px;">
+                    <i class="bi bi-person-plus-fill" style="margin-right: 6px;"></i>
+                    Atribua o chamado a si mesmo para registrar devolutivas oficiais.
+                </div>
+                <div th:if="${!isFinalizado and isAnalistaResponsavel}" style="border-top: 1px solid #EDF2F7; padding-top: 18px;">
                     <form th:action="@{/rh/tickets/{id}/comentar(id=${ticket.id})}" method="post">
                         <label for="conteudoDevolutiva" class="form-label" style="font-size: 13px; font-weight: 700;">
                             Registrar Devolutiva Oficial ao Colaborador:

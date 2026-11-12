@@ -44,6 +44,7 @@
                         <th>Código</th>
                         <th>Solicitação</th>
                         <th>Colaborador</th>
+                        <th>Analista Responsável</th>
                         <th>Data de Abertura</th>
                         <th>Status</th>
                         <th style="text-align: right;">Ações</th>
@@ -63,6 +64,17 @@
                             <small th:text="${t.colaborador.posto != null ? t.colaborador.posto : 'Colaborador'}" style="color: var(--text-muted); font-size: 11px;"></small>
                         </td>
                         <td>
+                            <span th:if="${t.analista != null and usuarioLogado != null and t.analista.id == usuarioLogado.id}" style="color: #2E7D32; font-weight: 600; font-size: 12px;">
+                                <i class="bi bi-person-check-fill"></i> Atribuído a você
+                            </span>
+                            <span th:if="${t.analista != null and (usuarioLogado == null or t.analista.id != usuarioLogado.id)}" style="font-size: 12px; color: var(--primary-dark); font-weight: 500;" th:text="${t.analista.nome}">
+                                Analista
+                            </span>
+                            <span th:if="${t.analista == null}" style="color: var(--text-muted); font-size: 12px; font-style: italic;">
+                                Não atribuído
+                            </span>
+                        </td>
+                        <td>
                             <span th:text="${t.dataFormatada}" style="font-size: 13px;">11/06/2026</span>
                             <small th:text="${t.tempoRelativo}" style="color: var(--text-muted); font-size: 11px; display: block;"></small>
                         </td>
@@ -70,14 +82,31 @@
                             <span class="status-tag" th:classappend="${t.status.classeCss}" th:text="${t.status.descricao}">Aberto</span>
                         </td>
                         <td style="text-align: right;">
-                            <div style="display: inline-flex; gap: 8px;">
-                                <form th:action="@{/rh/tickets/{id}/atribuir(id=${t.id})}" method="post" style="display: inline;">
-                                    <button type="submit" class="btn-primary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
-                                        <i class="bi bi-person-check-fill"></i> Atribuir a Mim
-                                    </button>
-                                </form>
-                                <a th:href="@{/rh/tickets/{id}(id=${t.id})}" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
-                                    Visualizar <i class="bi bi-chevron-right"></i>
+                            <div style="display: inline-flex; gap: 8px; align-items: center; justify-content: flex-end;">
+                                <!-- Se o ticket está atribuído a mim e não finalizado: Atender -->
+                                <a th:if="${t.analista != null and usuarioLogado != null and t.analista.id == usuarioLogado.id and !t.isFinalizado()}"
+                                   th:href="@{/rh/tickets/{id}(id=${t.id})}"
+                                   class="btn-primary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
+                                    <i class="bi bi-play-circle"></i> Atender
+                                </a>
+
+                                <!-- Se o ticket não tem analista e não finalizado: Atribuir a Mim ou Visualizar -->
+                                <th:block th:if="${t.analista == null and !t.isFinalizado()}">
+                                    <form th:action="@{/rh/tickets/{id}/atribuir(id=${t.id})}" method="post" style="display: inline; margin: 0;">
+                                        <button type="submit" class="btn-primary" style="background: #3B82F6; padding: 6px 14px; font-size: 12px; border-radius: 10px;">
+                                            <i class="bi bi-person-check-fill"></i> Atribuir / Atender
+                                        </button>
+                                    </form>
+                                    <a th:href="@{/rh/tickets/{id}(id=${t.id})}" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
+                                        <i class="bi bi-eye"></i> Visualizar
+                                    </a>
+                                </th:block>
+
+                                <!-- Se o ticket está atribuído a outro analista ou finalizado: Apenas Visualizar -->
+                                <a th:if="${(t.analista != null and usuarioLogado != null and t.analista.id != usuarioLogado.id) or t.isFinalizado()}"
+                                   th:href="@{/rh/tickets/{id}(id=${t.id})}"
+                                   class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;">
+                                    <i class="bi bi-eye"></i> Visualizar
                                 </a>
                             </div>
                         </td>
