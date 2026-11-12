@@ -132,5 +132,12 @@ public class NovosAjustesIntegrationTest {
                 .andExpect(view().name("rh/tickets/meu-trabalho"))
                 .andExpect(model().attributeExists("tickets"))
                 .andExpect(model().attribute("statusSelecionado", br.com.lumia.portal.domain.enums.StatusTicket.EM_ANDAMENTO));
+
+        // Acesso a Meu Trabalho com busca por termo (REQ ou solicitante)
+        mockMvc.perform(get("/rh/meu-trabalho").param("termo", "Carol"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("rh/tickets/meu-trabalho"))
+                .andExpect(model().attributeExists("tickets"))
+                .andExpect(model().attribute("termo", "Carol"));
     }
 }

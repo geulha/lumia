@@ -1,5 +1,6 @@
 package br.com.lumia.portal.controller;
 
+import br.com.lumia.portal.domain.entity.Ticket;
 import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.domain.enums.StatusTicket;
 import br.com.lumia.portal.service.AprovacaoService;
@@ -10,6 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.text.Normalizer;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/rh")
@@ -50,12 +55,27 @@ public class RhDashboardController {
 
     @GetMapping("/meu-trabalho")
     public String verMeuTrabalhoCompleto(@RequestParam(value = "status", required = false) StatusTicket status,
+                                         @RequestParam(value = "termo", required = false) String termo,
                                          @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
                                          Model model) {
         if (usuarioLogado == null) {
             return "redirect:/login";
         }
-        model.addAttribute("tickets", ticketService.listarMeuTrabalho(usuarioLogado.getId(), status));
+        List<Ticket> tickets = ticketService.listarMeuTrabalho(usuarioLogado.getId(), status);
+        if (termo != null && !termo.isBlank()) {
+            String termoNorm = Normalizer.normalize(termo.trim().toLowerCase(), Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "");
+            tickets = tickets.stream()
+                    .filter(t -> {
+                        String codigo = t.getCodigoFormatado().toLowerCase();
+                        String solicitante = Normalizer.normalize(t.getColaborador().getNome().toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+                        String tipo = Normalizer.normalize(t.getTipoSolicitacao().getNome().toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+                        return codigo.contains(termoNorm) || solicitante.contains(termoNorm) || tipo.contains(termoNorm);
+                    })
+                    .collect(Collectors.toList());
+            model.addAttribute("termo", termo);
+        }
+        model.addAttribute("tickets", tickets);
         model.addAttribute("statusSelecionado", status);
         model.addAttribute("todosStatus", StatusTicket.values());
         return "rh/tickets/meu-trabalho";

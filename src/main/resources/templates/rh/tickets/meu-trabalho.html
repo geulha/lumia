@@ -21,22 +21,40 @@
             </a>
         </div>
 
+        <!-- Barra de Busca -->
+        <div style="background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #EDF2F7;">
+            <form th:action="@{/rh/meu-trabalho}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                <input type="hidden" name="status" th:if="${statusSelecionado != null}" th:value="${statusSelecionado}">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar por código (REQ...) ou solicitante..." th:value="${termo}" style="flex: 1;">
+                <button type="submit" class="btn-primary" style="padding: 10px 20px;">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a th:if="${termo != null and !termo.isBlank()}" th:href="@{/rh/meu-trabalho(status=${statusSelecionado})}" class="btn-secondary" style="padding: 10px 16px;">
+                    Limpar
+                </a>
+            </form>
+        </div>
+
         <!-- Filtros Rápidos por Status -->
         <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
-            <a th:href="@{/rh/meu-trabalho}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${statusSelecionado == null ? 'btn-primary' : ''}">
+            <a th:href="@{/rh/meu-trabalho(termo=${termo})}" class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;" th:classappend="${statusSelecionado == null ? 'btn-primary' : ''}">
                 Todos os Chamados
             </a>
-            <a th:each="st : ${todosStatus}" th:href="@{/rh/meu-trabalho(status=${st})}"
+            <a th:each="st : ${todosStatus}" th:href="@{/rh/meu-trabalho(status=${st}, termo=${termo})}"
                class="btn-secondary" style="border-radius: 20px; font-size: 13px; padding: 6px 16px;"
                th:classappend="${statusSelecionado == st ? 'btn-primary' : ''}"
                th:text="${st.descricao}">Status</a>
         </div>
 
         <div th:if="${#lists.isEmpty(tickets)}" style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.03);">
-            <i class="bi bi-check2-circle" style="font-size: 40px; color: #8BC34A; display: block; margin-bottom: 12px;"></i>
-            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;">Você não possui tickets atribuídos</h4>
-            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">Consulte a fila de tickets em aberto para assumir novos atendimentos.</p>
-            <a th:href="@{/rh/tickets/abertos}" class="btn-primary" style="font-size: 13px; padding: 8px 18px;">
+            <i class="bi bi-search" th:if="${termo != null and !termo.isBlank()}" style="font-size: 40px; color: #CBD5E0; display: block; margin-bottom: 12px;"></i>
+            <i class="bi bi-check2-circle" th:unless="${termo != null and !termo.isBlank()}" style="font-size: 40px; color: #8BC34A; display: block; margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--primary-dark); margin-bottom: 4px;" th:text="${termo != null and !termo.isBlank() ? 'Nenhum ticket encontrado para a busca' : 'Você não possui tickets atribuídos'}">Você não possui tickets atribuídos</h4>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;" th:text="${termo != null and !termo.isBlank() ? 'Tente buscar por outro código de solicitação ou nome do solicitante.' : 'Consulte a fila de tickets em aberto para assumir novos atendimentos.'}">Consulte a fila de tickets em aberto para assumir novos atendimentos.</p>
+            <a th:if="${termo != null and !termo.isBlank()}" th:href="@{/rh/meu-trabalho(status=${statusSelecionado})}" class="btn-secondary" style="font-size: 13px; padding: 8px 18px;">
+                Limpar Busca
+            </a>
+            <a th:unless="${termo != null and !termo.isBlank()}" th:href="@{/rh/tickets/abertos}" class="btn-primary" style="font-size: 13px; padding: 8px 18px;">
                 Ver Fila de Tickets em Aberto
             </a>
         </div>
