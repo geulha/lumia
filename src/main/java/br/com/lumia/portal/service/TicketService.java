@@ -204,7 +204,7 @@ public class TicketService {
             aprovacao.setAprovador(gestor);
             aprovacao.setDecisao(DecisaoAprovacao.PENDENTE);
             aprovacao.setCriado(LocalDateTime.now());
-            aprovacaoRepository.save(aprovacao);
+            aprovacao = aprovacaoRepository.save(aprovacao);
 
             // Registra interação no histórico
             InteracaoTicket interacao = new InteracaoTicket();
@@ -214,6 +214,9 @@ public class TicketService {
             interacao.setConteudo("Ticket aberto e aguardando aprovação prévia do gestor imediato: " + gestor.getNome() + ".");
             interacao.setStatusPara(StatusTicket.PENDENTE);
             interacaoRepository.save(interacao);
+
+            // Notifica o gestor sobre a aprovação pendente
+            notificacaoService.notificarAprovacaoPendente(ticket, aprovacao);
         } else {
             // Registra interação inicial de abertura
             InteracaoTicket interacao = new InteracaoTicket();

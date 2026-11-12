@@ -1,5 +1,6 @@
 package br.com.lumia.portal.service;
 
+import br.com.lumia.portal.domain.entity.Aprovacao;
 import br.com.lumia.portal.domain.entity.Artigo;
 import br.com.lumia.portal.domain.entity.Notificacao;
 import br.com.lumia.portal.domain.entity.Ticket;
@@ -31,6 +32,24 @@ public class NotificacaoService {
         if (destinatario == null) return null;
         Notificacao notif = new Notificacao(destinatario, titulo, mensagem, link, tipo);
         return notificacaoRepository.save(notif);
+    }
+
+    /**
+     * Gatilho de Aprovação Pendente:
+     * Notifica o gestor/aprovador quando uma solicitação é aberta e fica pendente de sua decisão.
+     */
+    @Transactional
+    public void notificarAprovacaoPendente(Ticket ticket, Aprovacao aprovacao) {
+        if (ticket == null || aprovacao == null || aprovacao.getAprovador() == null) return;
+
+        Usuario aprovador = aprovacao.getAprovador();
+        String titulo = "Nova aprovação pendente: " + ticket.getCodigoFormatado();
+        String solicitanteNome = ticket.getColaborador() != null ? ticket.getColaborador().getNome() : "Colaborador";
+        String servicoNome = ticket.getTipoSolicitacao() != null ? ticket.getTipoSolicitacao().getNome() : "Solicitação";
+        String msg = solicitanteNome + " abriu o chamado '" + servicoNome + "' (" + ticket.getCodigoFormatado() + ") que aguarda sua avaliação e aprovação.";
+        String link = "/aprovacoes/" + aprovacao.getId();
+
+        criar(aprovador, titulo, msg, link, TipoNotificacao.APROVACAO_PENDENTE);
     }
 
     /**

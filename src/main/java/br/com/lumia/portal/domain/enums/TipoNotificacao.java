@@ -3,7 +3,8 @@ package br.com.lumia.portal.domain.enums;
 public enum TipoNotificacao {
     TICKET_ATUALIZADO("Atualização de Chamado", "bi-ticket-detailed", "#6C5CE7"),
     NOVO_ARTIGO("Novo Artigo Publicado", "bi-journal-bookmark-fill", "#2563EB"),
-    NOVO_FORMULARIO("Novo Serviço Disponível", "bi-ui-checks", "#16A34A");
+    NOVO_FORMULARIO("Novo Serviço Disponível", "bi-ui-checks", "#16A34A"),
+    APROVACAO_PENDENTE("Aprovação Pendente", "bi-shield-exclamation", "#F59E0B");
 
     private final String descricao;
     private final String icone;

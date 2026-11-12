@@ -43,11 +43,19 @@ public class AprovacaoGestorIntegrationTest {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private br.com.lumia.portal.service.NotificacaoService notificacaoService;
+
     @Test
     void testListarPendenciasDeGestor() {
         Usuario helen = usuarioService.buscarPorId(2); // Helen Sturka
         List<Aprovacao> pendentes = aprovacaoService.listarPendentes(helen);
         assertFalse(pendentes.isEmpty(), "Helen deve ter aprovações pendentes de sua equipe");
+
+        // Verifica se Helen possui notificação de aprovação pendente
+        List<br.com.lumia.portal.domain.entity.Notificacao> notifs = notificacaoService.listarTodas(helen);
+        assertTrue(notifs.stream().anyMatch(n -> n.getTipo() == br.com.lumia.portal.domain.enums.TipoNotificacao.APROVACAO_PENDENTE),
+                "O gestor deve receber notificação de aprovação pendente");
     }
 
     @Test
