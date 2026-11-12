@@ -11,6 +11,7 @@ import br.com.lumia.portal.repository.TipoSolicitacaoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -53,25 +54,43 @@ public class TipoSolicitacaoService {
         if (usuario == null) {
             return tipoSolicitacaoRepository.findByAtivoTrueOrderByNomeAsc();
         }
+        boolean isRh = usuario.isRh();
         String posto = usuario.getPosto() != null ? usuario.getPosto() : "";
-        return tipoSolicitacaoRepository.findDisponiveisParaUsuario(usuario.getPerfil(), posto);
+        return tipoSolicitacaoRepository.findDisponiveisParaUsuario(isRh, usuario.getPerfil(), posto);
     }
 
     public List<TipoSolicitacao> listarDisponiveisPorCategoria(Usuario usuario, String categoria) {
         if (usuario == null) {
             return tipoSolicitacaoRepository.findByAtivoTrueAndCategoriaIgnoreCaseOrderByNomeAsc(categoria);
         }
+        boolean isRh = usuario.isRh();
         String posto = usuario.getPosto() != null ? usuario.getPosto() : "";
-        return tipoSolicitacaoRepository.findDisponiveisParaUsuarioECategoria(usuario.getPerfil(), posto, categoria);
+        return tipoSolicitacaoRepository.findDisponiveisParaUsuarioECategoria(isRh, usuario.getPerfil(), posto, categoria);
+    }
+
+    public static String normalizar(String texto) {
+        if (texto == null) return "";
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
     }
 
     public List<TipoSolicitacao> buscarPorTermo(Usuario usuario, String termo) {
+        List<TipoSolicitacao> disponiveis = listarDisponiveisParaUsuario(usuario);
         if (termo == null || termo.isBlank()) {
-            return listarDisponiveisParaUsuario(usuario);
+            return disponiveis;
         }
-        String posto = usuario != null && usuario.getPosto() != null ? usuario.getPosto() : "";
-        var perfil = usuario != null ? usuario.getPerfil() : null;
-        return tipoSolicitacaoRepository.buscarPorTermo(perfil, posto, termo.trim());
+        String termoNorm = normalizar(termo.trim());
+        String[] palavras = termoNorm.split("\\s+");
+        return disponiveis.stream()
+                .filter(t -> {
+                    String nomeNorm = normalizar(t.getNome());
+                    String catNorm = normalizar(t.getCategoria());
+                    String descNorm = normalizar(t.getDescricao());
+                    return Arrays.stream(palavras).allMatch(p ->
+                            nomeNorm.contains(p) || catNorm.contains(p) || descNorm.contains(p));
+                })
+                .toList();
     }
 
     @Transactional

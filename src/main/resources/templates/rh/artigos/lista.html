@@ -40,8 +40,13 @@
                             <strong style="color: var(--primary-purple); font-size: 13px;" th:text="${a.codigoFormatado}">ART0183</strong>
                         </td>
                         <td>
-                            <strong th:text="${a.titulo}" style="font-size: 14px; display: block;">Orientações sobre Agendamento de Férias</strong>
-                            <small th:text="${a.tempoRelativo}" style="color: var(--text-muted); font-size: 11px;">três horas atrás</small>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="bi" th:classappend="${a.icone}" style="font-size: 18px; color: var(--primary-purple);"></i>
+                                <div>
+                                    <strong th:text="${a.titulo}" style="font-size: 14px; display: block;">Orientações sobre Agendamento de Férias</strong>
+                                    <small th:text="${a.tempoRelativo}" style="color: var(--text-muted); font-size: 11px;">três horas atrás</small>
+                                </div>
+                            </div>
                         </td>
                         <td>
                             <span class="status-tag" style="background-color: #F1F5F9; color: #475569;" th:text="${a.categoria}">Férias</span>

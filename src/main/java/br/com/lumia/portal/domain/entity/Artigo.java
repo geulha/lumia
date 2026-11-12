@@ -1,5 +1,6 @@
 package br.com.lumia.portal.domain.entity;
 
+import br.com.lumia.portal.domain.enums.Perfil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,18 @@ public class Artigo {
 
     @Column(name = "publicado", nullable = false)
     private Boolean publicado = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visivel_para_perfil", length = 20)
+    private Perfil visivelParaPerfil;
+
+    @Size(max = 100)
+    @Column(name = "visivel_para_posto", length = 100)
+    private String visivelParaPosto;
+
+    @Size(max = 50)
+    @Column(name = "icone", length = 50)
+    private String icone = "bi-file-earmark-text";
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -149,5 +162,29 @@ public class Artigo {
 
     public void setAtualizado(LocalDateTime atualizado) {
         this.atualizado = atualizado;
+    }
+
+    public Perfil getVisivelParaPerfil() {
+        return visivelParaPerfil;
+    }
+
+    public void setVisivelParaPerfil(Perfil visivelParaPerfil) {
+        this.visivelParaPerfil = visivelParaPerfil;
+    }
+
+    public String getVisivelParaPosto() {
+        return visivelParaPosto;
+    }
+
+    public void setVisivelParaPosto(String visivelParaPosto) {
+        this.visivelParaPosto = visivelParaPosto;
+    }
+
+    public String getIcone() {
+        return icone != null && !icone.isBlank() ? icone : "bi-file-earmark-text";
+    }
+
+    public void setIcone(String icone) {
+        this.icone = icone;
     }
 }

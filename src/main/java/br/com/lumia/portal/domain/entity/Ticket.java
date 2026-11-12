@@ -203,4 +203,18 @@ public class Ticket {
     public boolean isFinalizado() {
         return status == StatusTicket.CONCLUIDO || status == StatusTicket.REPROVADO;
     }
+
+    public String getNomeAprovadorPendente() {
+        if (aprovacoes != null && !aprovacoes.isEmpty()) {
+            for (Aprovacao a : aprovacoes) {
+                if (a.getDecisao() == br.com.lumia.portal.domain.enums.DecisaoAprovacao.PENDENTE && a.getAprovador() != null) {
+                    return a.getAprovador().getNome();
+                }
+            }
+        }
+        if (colaborador != null && colaborador.getGestor() != null) {
+            return colaborador.getGestor().getNome();
+        }
+        return "Gestor Imediato";
+    }
 }

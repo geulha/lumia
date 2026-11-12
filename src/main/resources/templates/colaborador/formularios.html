@@ -9,13 +9,26 @@
 
     <main class="lumia-main-content">
         <div style="margin-bottom: 25px;">
-            <a th:href="@{/colaborador}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-                <i class="bi bi-arrow-left"></i> Voltar ao Portal Principal
+            <a th:href="@{/}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Meu Painel
             </a>
             <h2 class="section-title" style="font-size: 24px;">Formulários de Solicitação ao RH</h2>
             <p style="color: var(--text-muted); font-size: 14px;">
                 Escolha o serviço desejado para abrir seu chamado de atendimento oficial.
             </p>
+        </div>
+
+        <!-- Barra de Busca de Formulários -->
+        <div style="background: white; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid #EDF2F7;">
+            <form th:action="@{/colaborador/formularios}" method="get" style="display: flex; gap: 12px; align-items: center;">
+                <input type="text" name="termo" class="form-control" placeholder="Buscar formulário por nome, categoria ou assunto (ex.: férias, folha, transporte)..." th:value="${filtroTermo}" style="flex: 1;">
+                <button type="submit" class="btn-primary" style="padding: 10px 20px;">
+                    <i class="bi bi-search"></i> Pesquisar
+                </button>
+                <a th:if="${filtroTermo != null and !filtroTermo.isBlank()}" th:href="@{/colaborador/formularios}" class="btn-secondary" style="padding: 10px 16px;">
+                    Limpar
+                </a>
+            </form>
         </div>
 
         <!-- Filtros Rápidos por Categoria -->

@@ -2,6 +2,7 @@ package br.com.lumia.portal.controller;
 
 import br.com.lumia.portal.domain.entity.Artigo;
 import br.com.lumia.portal.domain.entity.Usuario;
+import br.com.lumia.portal.domain.enums.Perfil;
 import br.com.lumia.portal.dto.ArtigoForm;
 import br.com.lumia.portal.service.ArtigoService;
 import jakarta.validation.Valid;
@@ -35,6 +36,7 @@ public class RhArtigoController {
         ArtigoForm form = new ArtigoForm();
         model.addAttribute("artigoForm", form);
         model.addAttribute("categorias", artigoService.listarCategorias());
+        model.addAttribute("perfis", Perfil.values());
         model.addAttribute("isEdicao", false);
         return "rh/artigos/formulario";
     }
@@ -47,6 +49,7 @@ public class RhArtigoController {
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("categorias", artigoService.listarCategorias());
+            model.addAttribute("perfis", Perfil.values());
             model.addAttribute("isEdicao", false);
             return "rh/artigos/formulario";
         }
@@ -60,6 +63,7 @@ public class RhArtigoController {
         } catch (Exception ex) {
             model.addAttribute("mensagemErro", "Erro ao cadastrar artigo: " + ex.getMessage());
             model.addAttribute("categorias", artigoService.listarCategorias());
+            model.addAttribute("perfis", Perfil.values());
             model.addAttribute("isEdicao", false);
             return "rh/artigos/formulario";
         }
@@ -74,9 +78,13 @@ public class RhArtigoController {
         form.setConteudo(artigo.getConteudo());
         form.setCategoria(artigo.getCategoria());
         form.setPublicado(artigo.getPublicado());
+        form.setVisivelParaPerfil(artigo.getVisivelParaPerfil());
+        form.setVisivelParaPosto(artigo.getVisivelParaPosto());
+        form.setIcone(artigo.getIcone());
 
         model.addAttribute("artigoForm", form);
         model.addAttribute("categorias", artigoService.listarCategorias());
+        model.addAttribute("perfis", Perfil.values());
         model.addAttribute("isEdicao", true);
         model.addAttribute("artigoTitulo", artigo.getTitulo());
         return "rh/artigos/formulario";
@@ -90,6 +98,7 @@ public class RhArtigoController {
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("categorias", artigoService.listarCategorias());
+            model.addAttribute("perfis", Perfil.values());
             model.addAttribute("isEdicao", true);
             return "rh/artigos/formulario";
         }
@@ -101,6 +110,7 @@ public class RhArtigoController {
         } catch (Exception ex) {
             model.addAttribute("mensagemErro", "Erro ao atualizar artigo: " + ex.getMessage());
             model.addAttribute("categorias", artigoService.listarCategorias());
+            model.addAttribute("perfis", Perfil.values());
             model.addAttribute("isEdicao", true);
             return "rh/artigos/formulario";
         }

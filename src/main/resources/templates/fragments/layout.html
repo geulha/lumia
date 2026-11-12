@@ -14,8 +14,8 @@
     <header th:fragment="header" class="lumia-header">
         <a th:href="@{/}" class="lumia-brand">Lumia</a>
 
-        <!-- Barra de busca global no cabeçalho -->
-        <div class="lumia-header-center" th:if="${usuarioLogado != null}">
+        <!-- Barra de busca no cabeçalho (apenas para perfil RH, já que o colaborador possui a barra no banner inicial) -->
+        <div class="lumia-header-center" th:if="${usuarioLogado != null and usuarioLogado.isRh()}">
             <form th:action="@{/busca}" method="get" class="header-search-box">
                 <input type="text" name="termo" placeholder="Buscar solicitações, artigos, assuntos..." th:value="${param.termo}">
                 <i class="bi bi-search search-icon" onclick="this.closest('form').submit()"></i>
@@ -28,6 +28,12 @@
             <div class="notification-bell" title="Notificações">
                 <i class="bi bi-bell"></i>
             </div>
+
+            <!-- Abrir Solicitação (acessível para RH e Colaborador) -->
+            <a th:href="@{/colaborador/formularios}" class="abrir-solicitacao-link" style="color: #4A5568; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#F7FAFC'" onmouseout="this.style.background='transparent'" title="Abrir Nova Solicitação">
+                <i class="bi bi-plus-circle" style="color: var(--primary-purple); font-size: 16px;"></i>
+                <span>Abrir Solicitação</span>
+            </a>
 
             <!-- Minhas Aprovações (com bolinha vermelha e indicador de pendências) -->
             <a th:href="@{/aprovacoes}" class="aprovacoes-link" title="Aprovações Pendentes">
@@ -54,6 +60,9 @@
                     </a>
                     <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh}">
                         <i class="bi bi-speedometer2 me-2"></i> Painel do RH
+                    </a>
+                    <a th:if="${usuarioLogado.isRh()}" th:href="@{/colaborador/solicitacoes}">
+                        <i class="bi bi-card-checklist me-2"></i> Minhas Solicitações (Pessoal)
                     </a>
                     <a th:if="${usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/usuarios}">
                         <i class="bi bi-people me-2"></i> Gerenciar Usuários

@@ -1,5 +1,6 @@
 package br.com.lumia.portal.dto;
 
+import br.com.lumia.portal.domain.enums.Perfil;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -19,6 +20,14 @@ public class ArtigoForm {
     private String categoria;
 
     private Boolean publicado = true;
+
+    private Perfil visivelParaPerfil;
+
+    @Size(max = 100)
+    private String visivelParaPosto;
+
+    @Size(max = 50)
+    private String icone = "bi-file-earmark-text";
 
     public ArtigoForm() {
     }
@@ -62,5 +71,29 @@ public class ArtigoForm {
 
     public void setPublicado(Boolean publicado) {
         this.publicado = publicado;
+    }
+
+    public Perfil getVisivelParaPerfil() {
+        return visivelParaPerfil;
+    }
+
+    public void setVisivelParaPerfil(Perfil visivelParaPerfil) {
+        this.visivelParaPerfil = visivelParaPerfil;
+    }
+
+    public String getVisivelParaPosto() {
+        return visivelParaPosto;
+    }
+
+    public void setVisivelParaPosto(String visivelParaPosto) {
+        this.visivelParaPosto = visivelParaPosto;
+    }
+
+    public String getIcone() {
+        return icone != null && !icone.isBlank() ? icone : "bi-file-earmark-text";
+    }
+
+    public void setIcone(String icone) {
+        this.icone = icone;
     }
 }

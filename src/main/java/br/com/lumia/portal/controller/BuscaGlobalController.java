@@ -44,10 +44,10 @@ public class BuscaGlobalController {
         if (termo != null && !termo.trim().isEmpty()) {
             String termoLimpo = termo.trim();
             formularios = tipoSolicitacaoService.buscarPorTermo(usuarioLogado, termoLimpo);
-            artigos = artigoService.buscarPublicadosPorTermo(termoLimpo);
+            artigos = artigoService.buscarPublicadosPorTermo(usuarioLogado, termoLimpo);
         } else {
             formularios = tipoSolicitacaoService.listarDisponiveisParaUsuario(usuarioLogado);
-            artigos = artigoService.listarPublicados();
+            artigos = artigoService.listarDisponiveisParaUsuario(usuarioLogado);
         }
 
         model.addAttribute("termo", termo != null ? termo.trim() : "");

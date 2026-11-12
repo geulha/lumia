@@ -59,12 +59,14 @@
                             <i class="bi bi-lightning-charge"></i> Atendimento direto
                         </span>
 
-                        <a th:if="${usuarioLogado != null and usuarioLogado.isColaborador()}" th:href="@{/colaborador/solicitacoes/nova/{id}(id=${form.id})}" class="btn-primary" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">
-                            Preencher <i class="bi bi-arrow-right"></i>
-                        </a>
-                        <a th:if="${usuarioLogado != null and usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/formularios/{id}/editar(id=${form.id})}" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">
-                            Gerenciar <i class="bi bi-gear"></i>
-                        </a>
+                        <div style="display: flex; gap: 8px;">
+                            <a th:href="@{/colaborador/solicitacoes/nova/{id}(id=${form.id})}" class="btn-primary" style="padding: 6px 14px; font-size: 12px; border-radius: 8px;">
+                                Preencher <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a th:if="${usuarioLogado != null and usuarioLogado.isRh()}" th:href="@{/rh/gerenciar/formularios/{id}/editar(id=${form.id})}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px; border-radius: 8px;" title="Configurar Construtor">
+                                <i class="bi bi-gear"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -85,7 +87,7 @@
             <div class="faq-list-card" th:if="${!#lists.isEmpty(artigos)}">
                 <a th:each="art : ${artigos}" th:href="@{/artigos/{id}(id=${art.id})}" class="faq-row-item">
                     <div class="faq-row-icon">
-                        <i class="bi bi-journal-text" style="color: var(--primary-purple); font-size: 20px;"></i>
+                        <i class="bi" th:classappend="${art.icone}" style="color: var(--primary-purple); font-size: 20px;"></i>
                     </div>
                     <div class="faq-row-info">
                         <span class="faq-row-title" th:text="${art.titulo}">Título do Artigo</span>
@@ -93,7 +95,7 @@
                             <span class="badge-categoria" th:text="${art.categoria}" style="font-size: 10px; padding: 2px 8px; background: #EEF2FF; color: var(--primary-purple); border-radius: 6px; font-weight: 600;">Folha de Pagamento</span>
                             <span th:text="${art.codigoFormatado}">ART0002</span> •
                             Publicado por <span th:text="${art.autor != null ? art.autor.nome : 'RH'}">Zosia Hivemind</span> •
-                            <span th:text="${art.dataAtualizacaoFormatada}">há 3 dias</span>
+                            <span th:text="${art.tempoRelativo}">há 3 dias</span>
                         </div>
                     </div>
                     <div style="margin-left: auto;">

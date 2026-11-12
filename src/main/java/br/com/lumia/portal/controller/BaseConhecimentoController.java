@@ -1,13 +1,11 @@
 package br.com.lumia.portal.controller;
 
 import br.com.lumia.portal.domain.entity.Artigo;
+import br.com.lumia.portal.domain.entity.Usuario;
 import br.com.lumia.portal.service.ArtigoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,16 +22,17 @@ public class BaseConhecimentoController {
     @GetMapping
     public String listarArtigos(@RequestParam(value = "categoria", required = false) String categoria,
                                 @RequestParam(value = "termo", required = false) String termo,
+                                @ModelAttribute("usuarioLogado") Usuario usuarioLogado,
                                 Model model) {
         List<Artigo> artigos;
         if (termo != null && !termo.isBlank()) {
-            artigos = artigoService.buscarPublicadosPorTermo(termo);
+            artigos = artigoService.buscarPublicadosPorTermo(usuarioLogado, termo);
             model.addAttribute("filtroTermo", termo);
         } else if (categoria != null && !categoria.isBlank()) {
-            artigos = artigoService.buscarPublicadosPorCategoria(categoria);
+            artigos = artigoService.buscarPublicadosPorCategoria(usuarioLogado, categoria);
             model.addAttribute("filtroCategoria", categoria);
         } else {
-            artigos = artigoService.listarPublicados();
+            artigos = artigoService.listarDisponiveisParaUsuario(usuarioLogado);
         }
 
         model.addAttribute("artigos", artigos);

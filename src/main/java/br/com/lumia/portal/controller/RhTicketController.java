@@ -57,9 +57,17 @@ public class RhTicketController {
     }
 
     @GetMapping("/encerrados")
-    public String listarTicketsEncerrados(Model model) {
-        model.addAttribute("tickets", ticketService.listarEncerrados());
+    public String listarTicketsEncerrados(Authentication authentication, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
+        model.addAttribute("tickets", ticketService.listarEncerradosPorAnalista(usuarioLogado.getId()));
         return "rh/tickets/encerrados";
+    }
+
+    @GetMapping("/pendentes")
+    public String listarTicketsPendentes(Authentication authentication, Model model) {
+        Usuario usuarioLogado = getUsuarioLogado(authentication);
+        model.addAttribute("tickets", ticketService.listarPendentesPorAnalista(usuarioLogado.getId()));
+        return "rh/tickets/pendentes";
     }
 
     @GetMapping("/{id}")

@@ -75,12 +75,38 @@ public class TicketService {
         return ticketRepository.findTicketsEncerrados();
     }
 
+    public List<Ticket> listarEncerradosPorAnalista(Integer analistaId) {
+        return ticketRepository.findByStatusInAndAnalistaIdOrderByAtualizadoDesc(
+                Arrays.asList(StatusTicket.CONCLUIDO, StatusTicket.REPROVADO), analistaId);
+    }
+
+    public List<Ticket> listarPendentesPorAnalista(Integer analistaId) {
+        return ticketRepository.findByStatusAndAnalistaIdOrderByCriadoDesc(StatusTicket.PENDENTE, analistaId);
+    }
+
     public long contarPorStatus(StatusTicket status) {
         return ticketRepository.countByStatus(status);
     }
 
     public long contarEncerrados() {
         return ticketRepository.countByStatusIn(Arrays.asList(StatusTicket.CONCLUIDO, StatusTicket.REPROVADO));
+    }
+
+    public long contarAbertosSemAnalista() {
+        return ticketRepository.countByStatusAndAnalistaIsNull(StatusTicket.ABERTO);
+    }
+
+    public long contarAndamentoPorAnalista(Integer analistaId) {
+        return ticketRepository.countByStatusAndAnalistaId(StatusTicket.EM_ANDAMENTO, analistaId);
+    }
+
+    public long contarPendentesPorAnalista(Integer analistaId) {
+        return ticketRepository.countByStatusAndAnalistaId(StatusTicket.PENDENTE, analistaId);
+    }
+
+    public long contarEncerradosPorAnalista(Integer analistaId) {
+        return ticketRepository.countByStatusInAndAnalistaId(
+                Arrays.asList(StatusTicket.CONCLUIDO, StatusTicket.REPROVADO), analistaId);
     }
 
     public void validarAcessoTicket(Ticket ticket, Usuario usuario) {

@@ -28,6 +28,16 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     long countByStatusIn(List<StatusTicket> statuses);
 
+    long countByStatusAndAnalistaIsNull(StatusTicket status);
+
+    long countByStatusAndAnalistaId(StatusTicket status, Integer analistaId);
+
+    long countByStatusInAndAnalistaId(List<StatusTicket> statuses, Integer analistaId);
+
+    List<Ticket> findByStatusAndAnalistaIdOrderByCriadoDesc(StatusTicket status, Integer analistaId);
+
+    List<Ticket> findByStatusInAndAnalistaIdOrderByAtualizadoDesc(List<StatusTicket> statuses, Integer analistaId);
+
     @Query("SELECT t FROM Ticket t WHERE t.analista.id = :analistaId ORDER BY t.criado DESC")
     List<Ticket> findMeuTrabalho(@Param("analistaId") Integer analistaId);
 

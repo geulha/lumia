@@ -56,7 +56,12 @@
                         <span style="font-size: 12px; font-weight: 600; color: var(--primary-purple);" th:text="${art.codigoFormatado}">ART0183</span>
                     </div>
 
-                    <h3 style="font-size: 16px; font-weight: 700; color: #1A202C; margin-bottom: 8px;" th:text="${art.titulo}">Título do Artigo</h3>
+                    <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #F3E8FF; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi" th:classappend="${art.icone}" style="font-size: 18px; color: var(--primary-purple);"></i>
+                        </div>
+                        <h3 style="font-size: 16px; font-weight: 700; color: #1A202C; margin: 0; line-height: 1.3;" th:text="${art.titulo}">Título do Artigo</h3>
+                    </div>
 
                     <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;" th:text="${art.conteudo}">
                         Conteúdo e orientações do artigo...

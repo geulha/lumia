@@ -29,14 +29,17 @@ public class RhDashboardController {
         }
 
         // 4 Indicadores na faixa de gradiente calculados dinamicamente do banco
-        model.addAttribute("contagemAbertos", ticketService.contarPorStatus(StatusTicket.ABERTO));
-        model.addAttribute("contagemAndamento", ticketService.contarPorStatus(StatusTicket.EM_ANDAMENTO));
+        // 1. Em aberto: sem analista atribuído
+        model.addAttribute("contagemAbertos", ticketService.contarAbertosSemAnalista());
 
-        // Pendências de aprovação específicas atribuídas ao usuário de RH logado
-        model.addAttribute("contagemPendentes", aprovacaoService.listarPendentes(usuarioLogado).size());
+        // 2. Em andamento: tratados por aquele analista logado
+        model.addAttribute("contagemAndamento", ticketService.contarAndamentoPorAnalista(usuarioLogado.getId()));
 
-        // Total histórico de chamados encerrados (concluídos e reprovados)
-        model.addAttribute("contagemEncerrados", ticketService.contarEncerrados());
+        // 3. Pendentes: pendentes de aprovação atribuídos para aquele analista
+        model.addAttribute("contagemPendentes", ticketService.contarPendentesPorAnalista(usuarioLogado.getId()));
+
+        // 4. Encerrados: histórico de chamados encerrados tratados por aquele analista
+        model.addAttribute("contagemEncerrados", ticketService.contarEncerradosPorAnalista(usuarioLogado.getId()));
 
         // Grade "Meu Trabalho" atribuídos à analista de RH logada (fiel ao protótipo)
         model.addAttribute("meuTrabalho", ticketService.listarMeuTrabalho(usuarioLogado.getId()));

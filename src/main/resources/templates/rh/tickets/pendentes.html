@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tickets Pendentes de Aprovação - RH')}"></head>
+<body>
+
+    <header th:replace="~{fragments/layout :: header}"></header>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="lumia-main-content">
+        <div style="margin-bottom: 25px;">
+            <a th:href="@{/rh}" style="text-decoration: none; color: var(--text-muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <i class="bi bi-arrow-left"></i> Voltar ao Painel do RH
+            </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 class="section-title">Tickets Pendentes de Aprovação</h2>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 0 0;">
+                        Acompanhamento de chamados atribuídos a você que estão em validação com a gestão imediata (somente para conferência).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table-card">
+            <table class="lumia-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Assunto / Formulário</th>
+                        <th>Solicitante</th>
+                        <th>Pendente de Aprovação Por</th>
+                        <th>Status</th>
+                        <th>Aberto em</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tk : ${tickets}">
+                        <td>
+                            <strong style="color: var(--primary-dark); font-size: 13px;" th:text="${tk.codigoFormatado}">REQ0083619</strong>
+                        </td>
+                        <td>
+                            <strong th:text="${tk.tipoSolicitacao.nome}" style="display: block; font-size: 13px;">Agendamento de Férias</strong>
+                            <small style="color: var(--text-muted); font-size: 11px;" th:text="${tk.tipoSolicitacao.categoria}">Férias</small>
+                        </td>
+                        <td th:text="${tk.colaborador.nome}">Carol Sturka</td>
+                        <td>
+                            <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: #B45309; background: #FEF3C7; padding: 4px 10px; border-radius: 8px; font-size: 12px;">
+                                <i class="bi bi-clock-history"></i>
+                                <span th:text="${tk.nomeAprovadorPendente}">Helen Sturka (Gestor)</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-tag" th:classappend="${tk.status.classeCss}" th:text="${tk.status.descricao}">
+                                Pendente
+                            </span>
+                        </td>
+                        <td th:text="${tk.dataFormatada}">11/06/2026</td>
+                        <td style="text-align: right;">
+                            <a th:href="@{/rh/tickets/{id}(id=${tk.id})}" class="btn-secondary" style="padding: 5px 14px; font-size: 12px; border-radius: 8px;">
+                                <i class="bi bi-eye"></i> Visualizar Chamado
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tickets)}">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="bi bi-check2-circle" style="font-size: 32px; display: block; margin-bottom: 8px; color: #10B981;"></i>
+                            Nenhum ticket pendente de aprovação sob sua responsabilidade no momento.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

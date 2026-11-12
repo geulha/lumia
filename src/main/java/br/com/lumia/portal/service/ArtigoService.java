@@ -7,6 +7,7 @@ import br.com.lumia.portal.repository.ArtigoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +25,25 @@ public class ArtigoService {
         return artigoRepository.findByPublicadoTrueOrderByCriadoDesc();
     }
 
+    public List<Artigo> listarDisponiveisParaUsuario(Usuario usuario) {
+        if (usuario == null) {
+            return artigoRepository.findByPublicadoTrueOrderByCriadoDesc();
+        }
+        boolean isRh = usuario.isRh();
+        String posto = usuario.getPosto() != null ? usuario.getPosto() : "";
+        return artigoRepository.findDisponiveisParaUsuario(isRh, usuario.getPerfil(), posto);
+    }
+
     public List<Artigo> listarPublicadosRecentes(int limit) {
         List<Artigo> artigos = artigoRepository.findByPublicadoTrueOrderByCriadoDesc();
+        if (artigos.size() > limit) {
+            return artigos.subList(0, limit);
+        }
+        return artigos;
+    }
+
+    public List<Artigo> listarPublicadosRecentesParaUsuario(Usuario usuario, int limit) {
+        List<Artigo> artigos = listarDisponiveisParaUsuario(usuario);
         if (artigos.size() > limit) {
             return artigos.subList(0, limit);
         }
@@ -45,11 +63,40 @@ public class ArtigoService {
         return artigoRepository.findByPublicadoTrueAndCategoriaIgnoreCaseOrderByCriadoDesc(categoria);
     }
 
-    public List<Artigo> buscarPublicadosPorTermo(String termo) {
+    public List<Artigo> buscarPublicadosPorCategoria(Usuario usuario, String categoria) {
+        List<Artigo> base = listarDisponiveisParaUsuario(usuario);
+        return base.stream()
+                .filter(a -> a.getCategoria() != null && a.getCategoria().equalsIgnoreCase(categoria))
+                .toList();
+    }
+
+    public static String normalizar(String texto) {
+        if (texto == null) return "";
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase();
+    }
+
+    public List<Artigo> buscarPublicadosPorTermo(Usuario usuario, String termo) {
+        List<Artigo> disponiveis = listarDisponiveisParaUsuario(usuario);
         if (termo == null || termo.isBlank()) {
-            return listarPublicados();
+            return disponiveis;
         }
-        return artigoRepository.buscarPublicadosPorTermo(termo.trim());
+        String termoNorm = normalizar(termo.trim());
+        String[] palavras = termoNorm.split("\\s+");
+        return disponiveis.stream()
+                .filter(a -> {
+                    String titNorm = normalizar(a.getTitulo());
+                    String catNorm = normalizar(a.getCategoria());
+                    String contNorm = normalizar(a.getConteudo());
+                    return Arrays.stream(palavras).allMatch(p ->
+                            titNorm.contains(p) || catNorm.contains(p) || contNorm.contains(p));
+                })
+                .toList();
+    }
+
+    public List<Artigo> buscarPublicadosPorTermo(String termo) {
+        return buscarPublicadosPorTermo(null, termo);
     }
 
     public List<String> listarCategorias() {
@@ -67,6 +114,9 @@ public class ArtigoService {
         artigo.setConteudo(form.getConteudo().trim());
         artigo.setCategoria(form.getCategoria().trim());
         artigo.setPublicado(form.getPublicado() != null ? form.getPublicado() : true);
+        artigo.setVisivelParaPerfil(form.getVisivelParaPerfil());
+        artigo.setVisivelParaPosto(form.getVisivelParaPosto() != null && !form.getVisivelParaPosto().isBlank() ? form.getVisivelParaPosto().trim() : null);
+        artigo.setIcone(form.getIcone() != null && !form.getIcone().isBlank() ? form.getIcone() : "bi-file-earmark-text");
         artigo.setAutor(autor);
         artigo.setCriado(LocalDateTime.now());
         artigo.setAtualizado(LocalDateTime.now());
@@ -81,6 +131,9 @@ public class ArtigoService {
         artigo.setConteudo(form.getConteudo().trim());
         artigo.setCategoria(form.getCategoria().trim());
         if (form.getPublicado() != null) artigo.setPublicado(form.getPublicado());
+        artigo.setVisivelParaPerfil(form.getVisivelParaPerfil());
+        artigo.setVisivelParaPosto(form.getVisivelParaPosto() != null && !form.getVisivelParaPosto().isBlank() ? form.getVisivelParaPosto().trim() : null);
+        if (form.getIcone() != null && !form.getIcone().isBlank()) artigo.setIcone(form.getIcone());
         artigo.setAtualizado(LocalDateTime.now());
 
         artigoRepository.save(artigo);

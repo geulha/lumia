@@ -139,11 +139,7 @@
                 <div th:unless="${#lists.isEmpty(artigosRecentes)}">
                     <a th:each="art : ${artigosRecentes}" th:href="@{/artigos/{id}(id=${art.id})}" class="article-list-item">
                         <div class="article-item-icon">
-                            <!-- Ícones ilustrativos semelhantes aos do protótipo -->
-                            <i th:if="${art.categoria == 'Férias'}" class="bi bi-lightbulb-fill" style="color: #E53935; font-size: 22px;"></i>
-                            <i th:if="${art.categoria == 'Folha de Pagamento'}" class="bi bi-bell-fill" style="color: #FBC02D; font-size: 22px;"></i>
-                            <i th:if="${art.categoria == 'Benefícios'}" class="bi bi-pin-angle-fill" style="color: #E53935; font-size: 22px;"></i>
-                            <i th:if="${art.categoria != 'Férias' and art.categoria != 'Folha de Pagamento' and art.categoria != 'Benefícios'}" class="bi bi-file-text-fill" style="color: var(--primary-purple); font-size: 22px;"></i>
+                            <i class="bi" th:classappend="${art.icone}" style="font-size: 22px; color: var(--primary-purple);"></i>
                         </div>
                         <div class="article-item-info">
                             <h4 th:text="${art.titulo}">Orientações sobre Agendamento de Férias</h4>

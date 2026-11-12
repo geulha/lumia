@@ -22,17 +22,20 @@ public interface TipoSolicitacaoRepository extends JpaRepository<TipoSolicitacao
     List<String> findDistinctCategorias();
 
     @Query("SELECT t FROM TipoSolicitacao t WHERE t.ativo = true AND " +
-           "(t.visivelParaPerfil IS NULL OR t.visivelParaPerfil = :perfil) AND " +
-           "(t.visivelParaPosto IS NULL OR t.visivelParaPosto = '' OR LOWER(t.visivelParaPosto) = LOWER(:posto)) " +
+           "(:isRh = true OR ((t.visivelParaPerfil IS NULL OR t.visivelParaPerfil = :perfil) AND " +
+           "(t.visivelParaPosto IS NULL OR t.visivelParaPosto = '' OR LOWER(t.visivelParaPosto) = LOWER(:posto)))) " +
            "ORDER BY t.nome ASC")
-    List<TipoSolicitacao> findDisponiveisParaUsuario(@Param("perfil") Perfil perfil, @Param("posto") String posto);
+    List<TipoSolicitacao> findDisponiveisParaUsuario(@Param("isRh") boolean isRh,
+                                                    @Param("perfil") Perfil perfil,
+                                                    @Param("posto") String posto);
 
     @Query("SELECT t FROM TipoSolicitacao t WHERE t.ativo = true AND " +
-           "(t.visivelParaPerfil IS NULL OR t.visivelParaPerfil = :perfil) AND " +
-           "(t.visivelParaPosto IS NULL OR t.visivelParaPosto = '' OR LOWER(t.visivelParaPosto) = LOWER(:posto)) AND " +
+           "(:isRh = true OR ((t.visivelParaPerfil IS NULL OR t.visivelParaPerfil = :perfil) AND " +
+           "(t.visivelParaPosto IS NULL OR t.visivelParaPosto = '' OR LOWER(t.visivelParaPosto) = LOWER(:posto)))) AND " +
            "LOWER(t.categoria) = LOWER(:categoria) " +
            "ORDER BY t.nome ASC")
-    List<TipoSolicitacao> findDisponiveisParaUsuarioECategoria(@Param("perfil") Perfil perfil, 
+    List<TipoSolicitacao> findDisponiveisParaUsuarioECategoria(@Param("isRh") boolean isRh,
+                                                              @Param("perfil") Perfil perfil, 
                                                               @Param("posto") String posto, 
                                                               @Param("categoria") String categoria);
 

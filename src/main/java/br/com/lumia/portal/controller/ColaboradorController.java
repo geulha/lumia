@@ -40,7 +40,7 @@ public class ColaboradorController {
         model.addAttribute("minhasSolicitacoes", ticketService.listarRecentesColaborador(usuarioLogado.getId(), 4));
 
         // 4 Artigos da Base de Conhecimento mais recentes (fiel ao protótipo)
-        model.addAttribute("artigosRecentes", artigoService.listarPublicadosRecentes(4));
+        model.addAttribute("artigosRecentes", artigoService.listarPublicadosRecentesParaUsuario(usuarioLogado, 4));
 
         return "colaborador/home";
     }
